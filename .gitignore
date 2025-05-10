@@ -1,0 +1,5 @@
+.vscode/
+NetForgeClient/bin/
+NetForgeClient/obj/
+NetForgeServer/bin/
+NetForgeServer/obj/
