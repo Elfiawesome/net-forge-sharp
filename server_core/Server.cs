@@ -41,7 +41,7 @@ namespace NetForge
 			while (!token.IsCancellationRequested)
 			{
 				// GD.Print("Game Ticked...");
-				await Task.Delay(500);
+				await Task.Delay(500, token);
 			}
 		}
 	}
