@@ -13,6 +13,7 @@ namespace NetForgeServerSharp
 		private Task ?_acceptClientTask;
 		private Task ?_gameLoopTask;
 
+		private ConcurrentDictionary<Guid, IConnection> _pendingConnections = new ConcurrentDictionary<Guid, IConnection>();
 		private ConcurrentDictionary<Guid, IConnection> _connections = new ConcurrentDictionary<Guid, IConnection>();
 		
 		private TcpListener ?_tcpListener;
@@ -42,7 +43,6 @@ namespace NetForgeServerSharp
 				Console.WriteLine("Server is not running.");
 				return;
 			}
-			Console.WriteLine("Stopping server...");
 			_isRunning = false;
 			_serverCts.Cancel();
 			
@@ -74,6 +74,17 @@ namespace NetForgeServerSharp
 				{					
 					TcpClient tcpClient = await _tcpListener.AcceptTcpClientAsync(token);
 					Console.WriteLine($"New TCP Connection");
+					var connection = new TCPConnection(tcpClient);
+					_pendingConnections.TryAdd(connection.ConnectionId, connection);
+
+					connection.StartReceiving(
+						(IConnection connection, BasePacket packet) => {
+							Console.WriteLine("Received data");
+						},
+						(IConnection connection) => {
+
+						}
+					);
 				}
 				catch (Exception ex)
 				{

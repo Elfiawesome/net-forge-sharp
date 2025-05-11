@@ -5,27 +5,28 @@ namespace NetForgeServerSharp
 {
 	public class Program
 	{
-		static async Task Main(string[] args)
-		{
-			Server server = new Server();
-			server.Start();
+		private static Server ?_server;
 
-			Console.CancelKeyPress += new ConsoleCancelEventHandler(async (object ?sender, ConsoleCancelEventArgs args) => {
-				await server.Stop();
-				// This doesnt await btw, it just kills the entire program immediately
-				Console.WriteLine("Stopping");
-			});
-			
-			// To hold the program running
-			while (true)
-			{
-				string ?res = Console.ReadLine();
-				if (res == "q")
-				{
-					await server.Stop();
+		static void Main(string[] args)
+		{
+			Console.WriteLine("Starting NetForgeServer...");
+			_server = new Server();
+			_server.Start();
+
+
+			Console.CancelKeyPress += async (sender, e) =>
+            {
+                Console.WriteLine("Ctrl+C detected. Initiating server shutdown...");
+                e.Cancel = true;
+                await _server.Stop();
+				_server = null;
+			};
+
+			while (true) {
+				if (_server == null) {
+					break;
 				}
 			}
-
 		}
 	}
 }
