@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Godot;
 
-namespace NetForge
+namespace NetForge.Network
 {
 	class NetworkManager
 	{
@@ -24,6 +24,7 @@ namespace NetForge
 
 		public void StartServer()
 		{
+			PacketFactory.Initialize();
 			_tcpListener = new TcpListener(IPAddress.Any, 3115);
 			_tcpListener.Start();
 			Task.Run(() => acceptClientTask(_networkManagerCts.Token));
@@ -51,12 +52,21 @@ namespace NetForge
 				var newConnection = new TCPServerConnection(tcpClient);
 				_connections.TryAdd(newConnection.ClientId, newConnection);
 				newConnection.PacketReceived += (BaseServerConnection connection, BasePacket packet) => {
-					GD.Print("Server received packet: "+packet);
+					// GD.Print("Server received packet: "+packet);
+					
 				};
 				newConnection.Disconnected += (BaseServerConnection connection) => {
-					GD.Print("Client disconnected");
-					GD.Print($"{_connections.Count} left");
+					// GD.Print("Client disconnected");
+					// GD.Print($"{_connections.Count} left");
 				};
+			}
+		}
+
+		public void Broadcast(BasePacket packet)
+		{
+			foreach (var item in _connections)
+			{
+				item.Value.SendPacket(packet, _networkManagerCts.Token);
 			}
 		}
 	}

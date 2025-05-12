@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
-using NetForge;
+using NetForge.Network;
 
 public partial class ClientNode : RefCounted
 {
@@ -28,6 +28,7 @@ public partial class ClientNode : RefCounted
 			Task.Run(() => {
 				tcpClient.ConnectAsync(ipEndPoint, _cts.Token);
 			});
+			Task.Run(() => ReceiveDataTask(_cts.Token));
 		}
 		catch (Exception ex)
 		{
@@ -42,10 +43,22 @@ public partial class ClientNode : RefCounted
 		_cts.Cancel();
 	}
 
+	public async Task ReceiveDataTask(CancellationToken token)
+	{
+		while (!token.IsCancellationRequested)
+		{
+			if (tcpClient == null) { continue; }
+			GD.Print($"Waiting for packets....");
+			var packetStream = new PacketStream(tcpClient.GetStream());		
+			var packet = await packetStream.GetPacketAsync(token);
+			GD.Print($"Received packet from Server! {packet}");
+		}		
+	}
+
 	public void SendData(string data)
 	{
 		if (tcpClient == null) { return; }
-		var packetStream = new PacketStream(tcpClient.GetStream());
-		_ = packetStream.SendPacketAsync(new ExamplePacket(data), _cts.Token);
+		var packetStream = new PacketStream(tcpClient.GetStream());// TODO: Ineffecient new stream everytime...
+		_ = packetStream.SendPacketAsync(new HelloWorldPacket("This is a very cool message 👍"), _cts.Token);
 	}
 }

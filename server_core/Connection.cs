@@ -8,12 +8,12 @@ namespace NetForge
 {
 	public class BaseServerConnection
 	{
-		public event Action<BaseServerConnection, BasePacket> PacketReceived = delegate {};
+		public event Action<BaseServerConnection, Network.BasePacket> PacketReceived = delegate {};
 		public event Action<BaseServerConnection> Disconnected = delegate {};
 		public readonly Guid ClientId = Guid.NewGuid();
 		public virtual void Disconnect() {}
 
-		protected virtual void OnPacketReceived(BasePacket packet)
+		protected virtual void OnPacketReceived(Network.BasePacket packet)
 		{
 			PacketReceived.Invoke(this, packet);
 		}
@@ -22,6 +22,12 @@ namespace NetForge
 		{
 			Disconnected.Invoke(this);
 		}
+
+		public virtual void SendPacket(Network.BasePacket packet, CancellationToken token)
+		{
+
+		}
+
 	}
 
 	public class TCPServerConnection : BaseServerConnection
@@ -47,7 +53,7 @@ namespace NetForge
 
 		private async Task receiveDataTask(CancellationToken token)
 		{
-			var packetStream = new PacketStream(_tcpClient.GetStream());
+			var packetStream = new Network.PacketStream(_tcpClient.GetStream());
 			while (!token.IsCancellationRequested && _tcpClient.Connected)
 			{
 				var packet = await packetStream.GetPacketAsync(token);
@@ -62,6 +68,12 @@ namespace NetForge
 				}
 			}
 			GD.Print($"Client connection closed");
+		}
+
+		public override void SendPacket(Network.BasePacket packet, CancellationToken token)
+		{
+			var packetStream = new Network.PacketStream(_tcpClient.GetStream());
+			_ = packetStream.SendPacketAsync(packet, token);
 		}
 	}
 }

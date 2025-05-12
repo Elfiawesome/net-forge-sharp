@@ -1,19 +1,20 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
+using NetForge.Network;
 
 namespace NetForge
 {
 	class Server
 	{
-		private readonly NetworkManager _networkManager;
+		private readonly Network.NetworkManager _networkManager;
 		private Task ?_gameLoopTask;
 		private readonly CancellationTokenSource _serverCts;
 		private bool _isRunning = false;
 		public Server()
 		{
 			_serverCts = new CancellationTokenSource();
-			_networkManager = new NetworkManager();
+			_networkManager = new Network.NetworkManager();
 		}
 
 
@@ -41,6 +42,7 @@ namespace NetForge
 			while (!token.IsCancellationRequested)
 			{
 				// GD.Print("Game Ticked...");
+				_networkManager.Broadcast(new HelloWorldPacket("HOLA"));
 				await Task.Delay(500, token);
 			}
 		}
