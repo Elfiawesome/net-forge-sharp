@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -16,9 +15,9 @@ namespace NetForge.Network
 		private static readonly Encoding _stringEncoding = Encoding.UTF8;
 
 		// Size of the field that stores the total length of (Type + Payload).
-        const int PACKET_LENGTH_FIELD_SIZE = 4;
+        const int PACKET_LENGTH_FIELD_SIZE = sizeof(int); // 4
 		// Size of the field that stores the packet type.
-		const int PACKET_TYPE_FIELD_SIZE = 2;
+		const int PACKET_TYPE_FIELD_SIZE = sizeof(ushort); //2
 		// Max size for (Type + Payload) 2MB
 		const int MAX_PACKET_PAYLOAD_SIZE = 2 * 1024 * 1024;
 

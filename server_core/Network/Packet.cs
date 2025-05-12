@@ -17,7 +17,7 @@ namespace NetForge.Network
 
 	}
 	
-	public static class PacketFactory
+	public static class PacketFactory // NOTE: Idk if I want a factory or a registry
 	{
 		private static readonly Dictionary<PacketType, Func<BasePacket>> _packetConstructors = new();
 

@@ -1,7 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Godot;
-using NetForge.Network;
 
 namespace NetForge
 {
@@ -27,7 +26,7 @@ namespace NetForge
 			_networkManager.StartServer();
 		}
 
-		public void Stop()
+		public async Task Stop()
 		{
 			_isRunning = false;
 			_serverCts.Cancel();
@@ -41,8 +40,7 @@ namespace NetForge
 		{
 			while (!token.IsCancellationRequested)
 			{
-				// GD.Print("Game Ticked...");
-				_networkManager.Broadcast(new HelloWorldPacket("HOLA"));
+				GD.Print("Game Ticked...");
 				await Task.Delay(500, token);
 			}
 		}

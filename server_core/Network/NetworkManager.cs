@@ -56,8 +56,9 @@ namespace NetForge.Network
 					
 				};
 				newConnection.Disconnected += (BaseServerConnection connection) => {
-					// GD.Print("Client disconnected");
-					// GD.Print($"{_connections.Count} left");
+					// Remove id here
+					GD.Print("[SERVER] Client disconnected");
+					GD.Print($"[SERVER] {_connections.Count} left");
 				};
 			}
 		}
