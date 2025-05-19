@@ -1,9 +1,11 @@
 using System;
 
+namespace Server;
+
 public static class DebugLogger
 {
-	public static event Action<string> Logged = delegate {};
-	public static void Log(string message, object ?obj = null)
+	public static event Action<string> Logged = delegate { };
+	public static void Log(string message, object? obj = null)
 	{
 		if (obj != null)
 		{
@@ -11,7 +13,7 @@ public static class DebugLogger
 		}
 		else
 		{
-			Logged.Invoke($"[C# Logger] - {message}");			
+			Logged.Invoke($"[C# Logger] - {message}");
 		}
 	}
 }
