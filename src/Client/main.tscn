@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://57kwt6ebdmvw"]
+
+[ext_resource type="Script" uid="uid://bse7ilm3anw0s" path="res://main.gd" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://ma04ysuo82nf" path="res://NetForgeBridge/ServerNode.cs" id="2_0xm2m"]
+[ext_resource type="Script" uid="uid://biq0sts1ytoqx" path="res://NetForgeBridge/ClientNode.cs" id="3_h2yge"]
+
+[node name="Main" type="Node"]
+script = ExtResource("1_ig7tw")
+
+[node name="ServerNode" type="Node" parent="."]
+script = ExtResource("2_0xm2m")
+
+[node name="ClientNode" type="Node" parent="."]
+script = ExtResource("3_h2yge")
