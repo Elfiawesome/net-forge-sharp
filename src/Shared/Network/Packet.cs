@@ -8,9 +8,11 @@ namespace Shared.Network;
 
 public enum PacketId : ushort
 {
-	HelloWorldMessage = 0,
+	HelloWorld = 0,
 	S2CTest,
-	C2STest
+	C2STest,
+
+	
 }
 
 public abstract class BasePacket

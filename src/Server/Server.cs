@@ -12,13 +12,14 @@ public class Server
 {
 	private readonly CancellationTokenSource _cancellationTokenSource;
 	private readonly CancellationToken _cancellationToken;
-
+	private readonly PacketHandlerServer _packetHandlerServer;
 	public Server()
 	{
 		// This cancellation token will be the only one used throughout the entire program
 		_cancellationTokenSource = new();
 		_cancellationToken = _cancellationTokenSource.Token;
 
+		_packetHandlerServer = new(this);		
 		// Bootstrap any registries we need
 		BasePacket.Register();
 	}

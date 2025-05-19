@@ -8,14 +8,14 @@ namespace Server.Connection;
 public class TCPServerConnection : BaseServerConnection
 {
 	private readonly PacketStream _packetStream;
-	private readonly Task _getPacketLoop;
+	private readonly Task _getPacketLoopTask;
 	private readonly CancellationToken _cancellationToken;
 
 	public TCPServerConnection(TcpClient tcpClient, CancellationToken token)
 	{
 		_cancellationToken = token;
 		_packetStream = new PacketStream(tcpClient.GetStream());
-		_getPacketLoop = GetPacketLoop();
+		_getPacketLoopTask = GetPacketLoop();
 	}
 
 	public async Task GetPacketLoop()

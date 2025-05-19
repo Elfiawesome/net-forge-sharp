@@ -1,19 +1,18 @@
 
+using Server.Connection;
 using Shared.Network;
-using Shared.Network.Packets.Serverbound;
 
 namespace Server;
 
-public class PacketHandlerServer : PacketHandler
+public class PacketHandlerServer : PacketHandler<BaseServerConnection>
 {
-	public PacketHandlerServer()
-	{
-		// Add server context here
-		RegisterHandler<C2STestPacket>(PacketId.C2STest, HandleC2STest);
-	}
+	private readonly Server _server;
 
-	private void HandleC2STest(C2STestPacket packet)
+	public PacketHandlerServer(Server server)
 	{
+		// insert Server context
+		_server = server;
 
+		// Register serverbound packets
 	}
 }
