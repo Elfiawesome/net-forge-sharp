@@ -29,6 +29,8 @@ public class Server
 		BasePacket.Register();
 	}
 
+	// TODO Shutdown needs to be a async and await for
+	// 1. mainListener's task (means i need to change '_=mainListener.StartListening') 
 	public void Shutdown()
 	{
 		foreach (var item in Connections)

@@ -33,6 +33,7 @@ public class TCPServerConnection : BaseServerConnection
 
 	public override void SendPacket(BasePacket packet)
 	{
+		// TODO store these async tasks and await them if this connections shuts down
 		_ = _packetStream.SendPacketAsync(packet, _cancellationToken);
 	}
 
