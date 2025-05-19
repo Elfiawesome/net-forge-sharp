@@ -18,8 +18,8 @@ public class Server
 	private readonly CancellationToken _cancellationToken;
 	private readonly PacketHandlerServer _packetHandlerServer;
 	public readonly Dictionary<Guid, BaseServerConnection> Connections = [];
-
 	public BaseListener? mainListener;
+
 	public Server()
 	{
 		// This cancellation token will be the only one used throughout the entire program
@@ -33,9 +33,12 @@ public class Server
 
 	public void AttachListener(BaseListener baseListener)
 	{
-		mainListener = baseListener;
-		_ = baseListener.StartListening(_cancellationToken);
-		baseListener.ConnectionAccepted += OnConnectionRequest;
+		if (mainListener != null)
+		{
+			mainListener = baseListener;
+			_ = baseListener.StartListening(_cancellationToken);
+			baseListener.ConnectionAccepted += OnConnectionRequest;
+		}
 	}
 
 	// When Connection wants to join game but is required to do the handshake login first
