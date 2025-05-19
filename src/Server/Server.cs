@@ -1,7 +1,4 @@
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
 using Shared.Network;
 using Server.Connection;
 using System.Collections.Generic;
@@ -14,6 +11,7 @@ namespace Server;
 
 public class Server
 {
+	public readonly int ProtocolVersion = 1;
 	private readonly CancellationTokenSource _cancellationTokenSource;
 	private readonly CancellationToken _cancellationToken;
 	private readonly PacketHandlerServer _packetHandlerServer;
@@ -31,9 +29,18 @@ public class Server
 		BasePacket.Register();
 	}
 
+	public void Shutdown()
+	{
+		foreach (var item in Connections)
+		{
+			item.Value.Close("Server has shutdown");
+		}
+		_cancellationTokenSource.Cancel();
+	}
+
 	public void AttachListener(BaseListener baseListener)
 	{
-		if (mainListener != null)
+		if (mainListener == null)
 		{
 			mainListener = baseListener;
 			_ = baseListener.StartListening(_cancellationToken);
@@ -50,10 +57,12 @@ public class Server
 	}
 
 
+	// Called by C2SResponseLoginPacket when client has successfully done the handshake
 	public void OnConnectionConnected(BaseServerConnection connection, Guid clientId)
 	{
 		// Do whatever for client entrance
 		DebugLogger.Log("Client success connected!");
+		Connections.Add(clientId, connection);
 	}
 
 	public void OnConnectionDisconnected(BaseServerConnection connection)

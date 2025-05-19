@@ -1,9 +1,7 @@
 
 using System;
 using Server.Connection;
-using Shared;
 using Shared.Network;
-using Shared.Network.Packets.Clientbound.Authentication;
 using Shared.Network.Packets.Serverbound.Authentication;
 
 namespace Server;
@@ -22,13 +20,17 @@ public class PacketHandlerServer : PacketHandler<BaseServerConnection>
 	private void HandleC2SResponseLoginPacket(BaseServerConnection connection, C2SResponseLoginPacket packet)
 	{
 		var clientId = Guid.NewGuid();
-		if (!_server.Connections.ContainsKey(clientId))
+		if (_server.Connections.ContainsKey(clientId))
 		{
-			_server.OnConnectionConnected(connection, clientId);
+			connection.Close("This username is already connected in the game!");
+			return;
 		}
-		else
+		if (_server.ProtocolVersion != packet.ProtocolVersion)
 		{
-			connection.SendPacket(new S2CDisconnect("This username is already connected in the game!"));
+			connection.Close($"Not same Protocol version. Server is on v{_server.ProtocolVersion} and client is on v{packet.ProtocolVersion}");
+			return;
 		}
+
+		_server.OnConnectionConnected(connection, clientId);
 	}
 }

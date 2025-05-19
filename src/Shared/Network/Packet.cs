@@ -27,6 +27,7 @@ public abstract class BasePacket
 	public static void Register()
 	{
 		REGISTRY.Register(PacketId.C2SResponseLoginPacket, () => new C2SResponseLoginPacket());
+		REGISTRY.Register(PacketId.S2CDisconnect, () => new S2CDisconnect());
 		REGISTRY.Register(PacketId.S2CLoginFailed, () => new S2CLoginFailed());
 		REGISTRY.Register(PacketId.S2CLoginSuccess, () => new S2CLoginSuccess());
 		REGISTRY.Register(PacketId.S2CRequestLoginPacket, () => new S2CRequestLoginPacket());

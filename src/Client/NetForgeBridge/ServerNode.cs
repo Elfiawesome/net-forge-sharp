@@ -12,11 +12,16 @@ public partial class ServerNode : Node
 	{
 		DebugLogger.Logged += (string message) => { GD.Print(message); };
 		server = new Server.Server();
-		server.AttachListener(new TCPListener("127.0.0.1", 3115));	
+		server.AttachListener(new TCPListener("127.0.0.1", 3115));
 	}
 
 	public override void _Ready()
 	{
 		base._Ready();
+	}
+
+	public void Shutdown()
+	{
+		server.Shutdown();
 	}
 }
