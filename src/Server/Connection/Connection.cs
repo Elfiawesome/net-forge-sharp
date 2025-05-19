@@ -6,6 +6,7 @@ namespace Server.Connection;
 public class BaseServerConnection
 {
 	public event Action<BaseServerConnection, BasePacket> PacketReceived = delegate { };
+	public event Action<BaseServerConnection> Disconnected = delegate { };
 	public BaseServerConnection()
 	{
 
@@ -16,5 +17,10 @@ public class BaseServerConnection
 	public void OnPacketReceived(BasePacket packet)
 	{
 		PacketReceived.Invoke(this, packet);
+	}
+
+	public void OnDisconnected()
+	{
+		Disconnected.Invoke(this);
 	}
 }

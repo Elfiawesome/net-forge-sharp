@@ -40,7 +40,6 @@ public class PacketHandler<TContext>
 	public void HandlePacket(BasePacket? packet, TContext? context = default)
 	{
 		if (packet == null) { return; }
-
 		if (_packetHandlers.TryGetValue(packet.Id, out var handlerAction))
 		{
 			handlerAction.Invoke(context, packet);

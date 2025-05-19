@@ -1,5 +1,5 @@
 using Godot;
-using Server;
+using Shared;
 
 namespace Client.NetForgeBridge;
 
