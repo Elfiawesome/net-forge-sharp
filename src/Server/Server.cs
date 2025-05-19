@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System;
 using Shared.Network.Packets.Clientbound.Authentication;
 using Shared;
+using Server.Listener;
 
 namespace Server;
 
@@ -17,7 +18,8 @@ public class Server
 	private readonly CancellationToken _cancellationToken;
 	private readonly PacketHandlerServer _packetHandlerServer;
 	public readonly Dictionary<Guid, BaseServerConnection> Connections = [];
-	
+
+	public BaseListener? mainListener;
 	public Server()
 	{
 		// This cancellation token will be the only one used throughout the entire program
@@ -29,35 +31,35 @@ public class Server
 		BasePacket.Register();
 	}
 
-	public async Task StartListeningAsync()
+	public void AttachListener(BaseListener baseListener)
 	{
-		var listener = new TcpListener(IPAddress.Any, 3115);
-		listener.Start();
-		while (!_cancellationToken.IsCancellationRequested)
-		{
-			var tcpClient = await listener.AcceptTcpClientAsync(_cancellationToken);
-			var tcpServerConnection = new TCPServerConnection(tcpClient, _cancellationToken);
-			tcpServerConnection.PacketReceived += OnConnectionPacketReceived;
-			tcpServerConnection.Disconnected += OnConnectionDisconnected;
-
-			// Ask connecting client for login packet
-			tcpServerConnection.SendPacket(new S2CRequestLoginPacket());
-		}
+		mainListener = baseListener;
+		_ = baseListener.StartListening(_cancellationToken);
+		baseListener.ConnectionAccepted += OnConnectionRequest;
 	}
 
-	public void OnConnectionPacketReceived(BaseServerConnection connection, BasePacket packet)
+	// When Connection wants to join game but is required to do the handshake login first
+	public void OnConnectionRequest(BaseServerConnection connection)
 	{
-		DebugLogger.Log($"packet received from connection {packet}|{connection}");
-		_packetHandlerServer.HandlePacket(packet, connection);
+		connection.PacketReceived += OnConnectionPacketReceived;
+		connection.Disconnected += OnConnectionDisconnected;
+		connection.SendPacket(new S2CRequestLoginPacket());
 	}
+
 
 	public void OnConnectionConnected(BaseServerConnection connection, Guid clientId)
 	{
 		// Do whatever for client entrance
+		DebugLogger.Log("Client success connected!");
 	}
 
 	public void OnConnectionDisconnected(BaseServerConnection connection)
 	{
 		// Do whatever for client exit
+	}
+
+	public void OnConnectionPacketReceived(BaseServerConnection connection, BasePacket packet)
+	{
+		_packetHandlerServer.HandlePacket(packet, connection);
 	}
 }

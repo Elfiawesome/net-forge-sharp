@@ -1,4 +1,5 @@
 using Godot;
+using Server.Listener;
 using Shared;
 
 namespace Client.NetForgeBridge;
@@ -10,8 +11,8 @@ public partial class ServerNode : Node
 	public ServerNode()
 	{
 		DebugLogger.Logged += (string message) => { GD.Print(message); };
-		server = new Server.Server(); //Lol why can I just call Server.server without any 'using Server' here EDIT: lol its cuz the namespace and the object is the same name, so we need to specify what exactly is the object
-		_ = server.StartListeningAsync();
+		server = new Server.Server();
+		server.AttachListener(new TCPListener("127.0.0.1", 3115));	
 	}
 
 	public override void _Ready()
