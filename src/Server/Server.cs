@@ -26,14 +26,13 @@ public class Server
 
 	public async Task StartListeningAsync()
 	{
-		DebugLogger.Log("Started Listening");
 		var listener = new TcpListener(IPAddress.Any, 3115);
 		listener.Start();
 		while (!_cancellationToken.IsCancellationRequested)
 		{
 			var tcpClient = await listener.AcceptTcpClientAsync(_cancellationToken);
 			var tcpServerConnection = new TCPServerConnection(tcpClient, _cancellationToken);
-			DebugLogger.Log("New Connection!");
+
 			tcpServerConnection.SendPacket(new S2CTestPacket());
 
 			tcpServerConnection.PacketReceived += OnConnectionPacketReceived;
@@ -42,6 +41,6 @@ public class Server
 
 	public void OnConnectionPacketReceived(BaseServerConnection connection, BasePacket packet)
 	{
-		DebugLogger.Log("Received packet");
+		_packetHandlerServer.HandlePacket(packet, connection);
 	}
 }

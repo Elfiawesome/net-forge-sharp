@@ -13,7 +13,13 @@ config_version=5
 config/name="Net Forge Client"
 run/main_scene="uid://57kwt6ebdmvw"
 config/features=PackedStringArray("4.4", "C#", "Forward Plus")
+boot_splash/show_image=false
 config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=720
+window/size/viewport_height=480
 
 [dotnet]
 
