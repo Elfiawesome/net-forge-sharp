@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,7 +44,9 @@ public class TCPConnection : BaseConnection
 			Close("Connection terminated prematurely.");
 		}
 
+		DebugLogger.Log("Trying to close nwo!");
 		// Check that all sendPackets have been done
+		
 		_tcpClient.Close();
 	}
 

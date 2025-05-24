@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using Shared.Network.Packets.Clientbound.Handshake;
+using Shared.Network.Packets.Clientbound.Root;
 using Shared.Registry;
 
 namespace Shared.Network;
@@ -10,9 +12,10 @@ public enum PacketId : ushort
 	HelloWorld = 0,
 
 	// Authentication (Serverbound)
-	C2SResponseLoginPacket,
+	C2SLoginRsponse,
 
 	// Authentication (Clientbound)
+	S2CLoginRequest,
 	S2CDisconnect,
 }
 
@@ -22,7 +25,9 @@ public abstract class BasePacket
 
 	public static void Register()
 	{
-		// REGISTRY.Register(PacketId.ID, () => new PacketObject());
+		REGISTRY.Register(PacketId.C2SLoginRsponse, () => new C2SLoginRsponsePacket());
+		REGISTRY.Register(PacketId.S2CLoginRequest, () => new S2CLoginRequestPacket());
+		REGISTRY.Register(PacketId.S2CDisconnect, () => new S2CDisconnectPacket());
 	}
 
 

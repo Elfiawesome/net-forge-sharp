@@ -12,6 +12,7 @@ public partial class ClientNode : Node
 	private readonly CancellationTokenSource _cancellationTokenSource;
 	private readonly CancellationToken _cancellationToken;
 	private PacketStream? _packetStream;
+	private readonly PacketProcessorClient _packetProcessor = new();
 	public ClientNode()
 	{
 		_cancellationTokenSource = new();
@@ -40,6 +41,7 @@ public partial class ClientNode : Node
 
 			if (packet != null)
 			{
+				_packetProcessor.ProcessPacket(this, packet);
 			}
 		}
 	}
