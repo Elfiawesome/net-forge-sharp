@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,40 +7,57 @@ using Shared.Network;
 
 namespace Server.Connection;
 
-public class TCPServerConnection : BaseServerConnection
+public class TCPConnection : BaseConnection
 {
-	private readonly PacketStream _packetStream;
 	private readonly TcpClient _tcpClient;
-	private readonly Task _getPacketLoopTask; // dunno what to do w this task
-	private readonly CancellationToken _cancellationToken;
+	private readonly PacketStream _packetStream;
+	// private readonly List<Task> sendPacketTasks = new();
 
-	public TCPServerConnection(TcpClient tcpClient, CancellationToken token)
+	private readonly CancellationTokenSource _localCancellationTokenSource;
+	private readonly CancellationToken _localCancellationToken;
+
+	private readonly Task _receivingPacketTask;
+	private bool hasClosed = false;
+
+	public TCPConnection(TcpClient tcpClient, CancellationToken token)
 	{
-		_cancellationToken = token;
+		_localCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
+		_localCancellationToken = _localCancellationTokenSource.Token;
+
 		_tcpClient = tcpClient;
-		_packetStream = new PacketStream(_tcpClient.GetStream());
-		_getPacketLoopTask = GetPacketLoop();
+		_packetStream = new(tcpClient.GetStream());
+
+		_receivingPacketTask = ReceivePacket();
 	}
 
-	public async Task GetPacketLoop()
+	private async Task ReceivePacket()
 	{
-		while (!_cancellationToken.IsCancellationRequested && _tcpClient.Connected)
+		while (!_localCancellationToken.IsCancellationRequested)
 		{
-			var packet = await _packetStream.GetPacketAsync(_cancellationToken);
-			if (packet == null) { continue; }
+			var packet = await _packetStream.GetPacketAsync(_localCancellationToken);
+			if (packet == null) { break; }
 			OnPacketReceived(packet);
 		}
+		// If connections terminates prematurely
+		if (!hasClosed)
+		{
+			Close("Connection terminated prematurely.");
+		}
+
+		// Check that all sendPackets have been done
+		_tcpClient.Close();
 	}
 
 	public override void SendPacket(BasePacket packet)
 	{
-		// TODO store these async tasks and await them if this connections shuts down
-		_ = _packetStream.SendPacketAsync(packet, _cancellationToken);
+		base.SendPacket(packet);
+		var sendTask = _packetStream.SendPacketAsync(packet, _localCancellationToken);
 	}
 
-	~TCPServerConnection()
+	public override void Close(string disconnectMessage = "Server closed this connection.")
 	{
-		DebugLogger.Log("Connection is being GC'd");
+		base.Close(disconnectMessage);
+		_localCancellationTokenSource.Cancel();
+		hasClosed = true;
 	}
-
 }

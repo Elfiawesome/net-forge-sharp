@@ -8,28 +8,27 @@ namespace Server.Listener;
 
 public class TCPListener : BaseListener
 {
-	private readonly TcpListener _listener;
+	private readonly TcpListener _tcpListener;
 
 	public TCPListener(string addressString, int portNumber)
 	{
 		var ipAddress = IPAddress.Parse(addressString);
-		_listener = new(ipAddress, portNumber);
+		_tcpListener = new(ipAddress, portNumber);
 	}
 
-	public override async Task StartListening(CancellationToken cancellationToken)
+	public async override Task StartListening(CancellationToken serverCancellationToken)
 	{
-		_listener.Start();
-		while (!cancellationToken.IsCancellationRequested)
+		_tcpListener.Start();
+		while (!serverCancellationToken.IsCancellationRequested)
 		{
-			var tcpClient = await _listener.AcceptTcpClientAsync(cancellationToken);
-			var tcpServerConnection = new TCPServerConnection(tcpClient, cancellationToken);
+			var tcpClient = await _tcpListener.AcceptTcpClientAsync(serverCancellationToken);
+			var tcpServerConnection = new TCPConnection(tcpClient, serverCancellationToken);
 			OnConnectionConnected(tcpServerConnection);
 		}
 	}
 
 	public override void StopListening()
 	{
-		_listener.Stop();
-		_listener.Dispose();
+		// Can't do anything because the cancelation request is made thru the server cancelation token
 	}
 }

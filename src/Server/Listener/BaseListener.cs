@@ -7,12 +7,12 @@ namespace Server.Listener;
 
 public abstract class BaseListener
 {
-	public event Action<BaseServerConnection> ConnectionAccepted = delegate { };
+	public event Action<BaseConnection> ConnectionAccepted = delegate { };
 
-	public abstract Task StartListening(CancellationToken cancellationToken);
+	public abstract Task StartListening(CancellationToken serverCancellationToken);
 	// TODO Stop listening needs to be async function and waits for listening to be finished before completing
 	public abstract void StopListening();
-	public void OnConnectionConnected(BaseServerConnection connection)
+	public void OnConnectionConnected(BaseConnection connection)
 	{
 		ConnectionAccepted.Invoke(connection);
 	}

@@ -1,79 +1,61 @@
-using System.Threading;
-using Shared.Network;
-using Server.Connection;
 using System.Collections.Generic;
-using System;
-using Shared.Network.Packets.Clientbound.Authentication;
-using Shared;
+using System.Threading;
+using Server.Connection;
 using Server.Listener;
+using Server.PacketHandler;
+using Shared.Network;
 
 namespace Server;
 
 public class Server
 {
-	public readonly int ProtocolVersion = 1;
-	private readonly CancellationTokenSource _cancellationTokenSource;
-	private readonly CancellationToken _cancellationToken;
-	private readonly PacketHandlerServer _packetHandlerServer;
-	public readonly Dictionary<Guid, BaseServerConnection> Connections = [];
-	public BaseListener? mainListener;
+	private readonly CancellationTokenSource _serverCancelationTokenSource = new();
+	private readonly CancellationToken _serverCancelationToken;
+	private readonly List<BaseListener> _listeners = new();
+	private readonly PacketHandlerServer packetHandlerServer = new();
 
 	public Server()
 	{
-		// This cancellation token will be the only one used throughout the entire program
-		_cancellationTokenSource = new();
-		_cancellationToken = _cancellationTokenSource.Token;
-
-		_packetHandlerServer = new(this);
-		// Bootstrap any registries we need
-		BasePacket.Register();
+		_serverCancelationToken = _serverCancelationTokenSource.Token;
 	}
 
-	// TODO Shutdown needs to be a async and await for
-	// 1. mainListener's task (means i need to change '_=mainListener.StartListening') 
-	public void Shutdown()
+	// Note: Attaching a listener after the server has started will not activate the listener
+	public void AttachListener(BaseListener listener)
 	{
-		foreach (var item in Connections)
-		{
-			item.Value.Close("Server has shutdown");
-		}
-		_cancellationTokenSource.Cancel();
+		_listeners.Add(listener);
+		listener.ConnectionAccepted += OnNewConnection;
 	}
 
-	public void AttachListener(BaseListener baseListener)
+	public void DetachListener(BaseListener listener)
 	{
-		if (mainListener == null)
+		_listeners.Remove(listener);
+		listener.ConnectionAccepted -= OnNewConnection;
+	}
+
+	// Starts the server
+	public void Start()
+	{
+		foreach (var listener in _listeners)
 		{
-			mainListener = baseListener;
-			_ = baseListener.StartListening(_cancellationToken);
-			baseListener.ConnectionAccepted += OnConnectionRequest;
+			listener.StartListening(_serverCancelationToken);
 		}
 	}
 
-	// When Connection wants to join game but is required to do the handshake login first
-	public void OnConnectionRequest(BaseServerConnection connection)
+	// Stops the server
+	public void Stop()
 	{
-		connection.PacketReceived += OnConnectionPacketReceived;
-		connection.Disconnected += OnConnectionDisconnected;
-		connection.SendPacket(new S2CRequestLoginPacket());
+		foreach (var listener in _listeners)
+		{
+			listener.StopListening();
+		}
+		// Note that the listener still has a reference to this server object (via .ConnectionAccepted). Should remove this reference
 	}
 
-
-	// Called by C2SResponseLoginPacket when client has successfully done the handshake
-	public void OnConnectionConnected(BaseServerConnection connection, Guid clientId)
+	private void OnNewConnection(BaseConnection connection)
 	{
-		// Do whatever for client entrance
-		DebugLogger.Log("Client success connected!");
-		Connections.Add(clientId, connection);
-	}
-
-	public void OnConnectionDisconnected(BaseServerConnection connection)
-	{
-		// Do whatever for client exit
-	}
-
-	public void OnConnectionPacketReceived(BaseServerConnection connection, BasePacket packet)
-	{
-		_packetHandlerServer.HandlePacket(packet, connection);
+		connection.PacketReceived += (BasePacket packet) =>
+		{
+			
+		};
 	}
 }

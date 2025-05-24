@@ -12,12 +12,10 @@ public partial class ClientNode : Node
 	private readonly CancellationTokenSource _cancellationTokenSource;
 	private readonly CancellationToken _cancellationToken;
 	private PacketStream? _packetStream;
-	private readonly PacketHandlerClient _packetHandlerClient;
 	public ClientNode()
 	{
 		_cancellationTokenSource = new();
 		_cancellationToken = _cancellationTokenSource.Token;
-		_packetHandlerClient = new(this);
 	}
 
 	public override void _Ready()
@@ -42,7 +40,6 @@ public partial class ClientNode : Node
 
 			if (packet != null)
 			{
-				_packetHandlerClient.HandlePacket(packet);
 			}
 		}
 	}
