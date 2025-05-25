@@ -1,16 +1,15 @@
 
 using System;
 using System.Collections.Generic;
-using NetForge.ServerCore.Game.Instance;
 
 namespace NetForge.ServerCore.Game;
 
 public class GameLogic
 {
-	private readonly Dictionary<Guid, GameInstance> _gameInstances;
+	private readonly Dictionary<Guid, Spaces> _spaces;
 
 	public GameLogic()
 	{
-		_gameInstances = [];
+		_spaces = [];
 	}
 }

@@ -13,9 +13,7 @@ public class Server
 	private readonly CancellationToken _serverCancellationToken;
 	private readonly List<BaseListener> _listeners = [];
 
-	// Manager system? Not sure how to abstract
-	// private readonly GameLogicManager _gameLogicManager = new();
-	// private readonly NetworkManager _networkManager = new();
+	private readonly Handshake _handshake = new();
 	private readonly GameLogic _gameLogic = new();
 
 	public Server()
