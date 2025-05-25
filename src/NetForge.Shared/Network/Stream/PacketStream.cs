@@ -26,7 +26,7 @@ public class PacketStream
 	}
 
 
-	public async Task<BasePacket?>GetPacketAsync(CancellationToken token)
+	public async Task<BasePacket?> GetPacketAsync(CancellationToken token)
 	{
 		try
 		{
@@ -100,5 +100,42 @@ public class PacketStream
 			totalBytesRead += bytesRead;
 		}
 		return totalBytesRead;
+	}
+
+	public async Task SendPacketAsync(BasePacket packet, CancellationToken token)
+	{
+		try
+		{
+			using (var ms = new MemoryStream())
+			{
+				using (var bw = new BinaryWriter(ms, _stringEncoding, true))
+				{
+					// Packet Id
+					bw.Write((ushort)packet.Id);
+					// Packet Payload
+					packet.SerializePayload(bw);
+					bw.Flush();
+
+					byte[] packetBuffer = ms.ToArray();
+					if (packetBuffer.Length > MAX_PACKET_PAYLOAD_SIZE)
+					{
+						// Packet too big
+						return;
+					}
+
+					// Get the length of (Type + Payload)
+					var lengthBuffer = BitConverter.GetBytes(packetBuffer.Length);
+
+					// Write to the network stream: Length, then (Type + Payload)
+					await _stream.WriteAsync(lengthBuffer, 0, PACKET_LENGTH_FIELD_SIZE, token);
+					await _stream.WriteAsync(packetBuffer, 0, packetBuffer.Length, token);
+					await _stream.FlushAsync(token);
+				}
+			}
+		}
+		catch (Exception)
+		{
+
+		}
 	}
 }

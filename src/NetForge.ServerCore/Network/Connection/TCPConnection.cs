@@ -50,9 +50,14 @@ public class TCPConnection : BaseConnection
 		ForcefullyClose();
 	}
 
+	public override void SendData(BasePacket packet)
+	{
+		_ = _packetStream.SendPacketAsync(packet, _connectionCancellationToken);
+	}
+
 	public override void ForcefullyClose(string disconnectReason = "Disconnected from server for unkown reason.")
 	{
-		Logger.Log("TCP Connection Forcefully closed for reason: "+disconnectReason);
+		Logger.Log("TCP Connection Forcefully closed for reason: " + disconnectReason);
 		base.ForcefullyClose(disconnectReason);
 		_connectionCancellationTokenSource.Cancel();
 	}
