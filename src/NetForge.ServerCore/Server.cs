@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using NetForge.ServerCore.Game;
 using NetForge.ServerCore.Network;
 using NetForge.ServerCore.Network.Listener;
 using NetForge.Shared.Debugging;
@@ -12,11 +13,10 @@ public class Server
 	private readonly CancellationToken _serverCancellationToken;
 	private readonly List<BaseListener> _listeners = [];
 
-	private readonly Handshake _handshake = new();
-	
 	// Manager system? Not sure how to abstract
 	// private readonly GameLogicManager _gameLogicManager = new();
 	// private readonly NetworkManager _networkManager = new();
+	private readonly GameLogic _gameLogic = new();
 
 	public Server()
 	{
@@ -45,6 +45,5 @@ public class Server
 	public void AddListener(BaseListener listener)
 	{
 		_listeners.Add(listener);
-		listener.NewConnectionEvent += _handshake.AddNewConnection;
 	}
 }
