@@ -22,13 +22,12 @@ public class TCPListener : BaseListener
 
 	public override async Task Listen(CancellationToken serverCancellationToken)
 	{
-		Logger.Log("TCP Listener started Listening");
+		Logger.Log("[Server] TCP Listener started listening");
 		while (!serverCancellationToken.IsCancellationRequested)
 		{
 			try
 			{
 				TcpClient tcpClient = await _tcpListener.AcceptTcpClientAsync(serverCancellationToken);
-				Logger.Log("New Client Connected!");
 				var tcpConnection = new TCPConnection(tcpClient, serverCancellationToken);
 				OnNewConnection(tcpConnection);
 			}
@@ -37,6 +36,6 @@ public class TCPListener : BaseListener
 
 			}
 		}
-		Logger.Log("TCP Listener stopped listening");
+		Logger.Log("[Server] TCP Listener ended listening");
 	}
 }

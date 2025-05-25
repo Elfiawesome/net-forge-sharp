@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using NetForge.Shared.Network.Packet.Clientbound.Authentication;
+using NetForge.Shared.Network.Packet.Serverbound.Authentication;
 
 namespace NetForge.Shared.Network.Packet;
 
@@ -9,7 +11,9 @@ public static class PacketFactory
 
 	public static void Initialize()
 	{
-		// Register here...
+		Register<S2CDisconnectPacket>(PacketId.S2CDisconnectPacket);
+		Register<S2CRequestLoginPacket>(PacketId.S2CRequestLoginPacket);
+		Register<C2SLoginResponsePacket>(PacketId.C2SLoginResponsePacket);
 	}
 
 	public static void Register<TPacket>(PacketId packetId) where TPacket : BasePacket, new()

@@ -11,8 +11,5 @@ public class Player
 	{
 		Id = playerId;
 		Connection = connection;
-
-		// Connection.DisconnectedEvent
-		// Connection.PacketReceivedEvent
 	}
 }

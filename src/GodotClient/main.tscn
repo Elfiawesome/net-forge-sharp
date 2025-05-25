@@ -12,3 +12,10 @@ script = ExtResource("2_0xm2m")
 
 [node name="ClientNode" type="Node" parent="."]
 script = ExtResource("3_h2yge")
+
+[node name="Button" type="Button" parent="."]
+offset_left = 291.0
+offset_top = 259.0
+offset_right = 524.0
+offset_bottom = 313.0
+text = "debug button"

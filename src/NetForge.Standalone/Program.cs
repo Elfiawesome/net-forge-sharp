@@ -1,4 +1,5 @@
 ﻿using System;
+using NetForge.ClientCore;
 using NetForge.ServerCore;
 using NetForge.ServerCore.Network.Listener;
 using NetForge.Shared.Network.Packet;
@@ -14,10 +15,14 @@ public static class Program
 		Server? server = new();
 		server.AddListener(new TCPListener("127.0.0.1", 3115));
 		server.Start();
+		
+		// Testing with a client connection
+		Client client = new();
+		client.Connect();
 
 		while (true)
 		{
-			string ?input = Console.ReadLine();
+			string? input = Console.ReadLine();
 			if (input == null) { continue; }
 			if (input == "c")
 			{

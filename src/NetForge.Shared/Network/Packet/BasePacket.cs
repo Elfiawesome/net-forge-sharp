@@ -5,6 +5,7 @@ namespace NetForge.Shared.Network.Packet;
 public enum PacketId : ushort
 {
 	TestPacket,
+	S2CDisconnectPacket,
 	S2CRequestLoginPacket,
 	C2SLoginResponsePacket,
 }

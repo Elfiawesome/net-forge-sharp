@@ -102,7 +102,7 @@ public class PacketStream
 		return totalBytesRead;
 	}
 
-	public async Task SendPacketAsync(BasePacket packet, CancellationToken token)
+	public async Task SendPacketAsync(BasePacket packet, CancellationToken token = default)
 	{
 		try
 		{

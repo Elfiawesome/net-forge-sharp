@@ -12,3 +12,4 @@ func _input(event: InputEvent) -> void:
 		if event.pressed:
 			if event.keycode == KEY_ESCAPE:
 				server_node.Shutdown()
+	

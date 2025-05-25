@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using NetForge.Shared.Debugging;
+using NetForge.Shared.Network.Packet.Clientbound.Authentication;
 using NetForge.Shared.Network.Stream;
 
 namespace NetForge.ClientCore;
@@ -31,7 +32,7 @@ public class Client
 		_tcpClient.Connect(ipEndPoint);
 		_packetStream = new PacketStream(_tcpClient.GetStream());
 
-		Logger.Log("Client connecting to server");
+		Logger.Log("[Client] Connecting to server");
 		_listeningTask = Listen();
 	}
 
@@ -43,7 +44,17 @@ public class Client
 			{
 				if (_packetStream == null) { continue; }
 				var packet = await _packetStream.GetPacketAsync(_clientCancellationToken);
-				Logger.Log($"Client received packet [packet]");
+				Logger.Log($"[Client] Received packet [{packet}]");
+				if (packet is S2CDisconnectPacket disconnectPacket)
+				{
+					Logger.Log("  ->Disconnect reason: " + disconnectPacket.Reason);
+					break; // Dont need to care if we received a null packet later or not
+				}
+
+				if (packet == null)
+				{
+					break;
+				}
 			}
 			catch (Exception)
 			{
@@ -51,7 +62,8 @@ public class Client
 			}
 
 		}
-		Logger.Log("Client ended listening");
+		_tcpClient.Close();
+		Logger.Log("[Client] Ended Listening");
 	}
 
 	public void Leave()

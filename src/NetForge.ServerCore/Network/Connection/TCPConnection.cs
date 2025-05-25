@@ -31,33 +31,45 @@ public class TCPConnection : BaseConnection
 
 	private async Task Process()
 	{
-		Logger.Log("TCP Connection process started!");
+		Logger.Log($"[Server] [TCP Connection] New connection form - {_tcpClient.Client.RemoteEndPoint}");
 		IsConnected = true;
-		while (!_connectionCancellationToken.IsCancellationRequested)
+		while (!_connectionCancellationToken.IsCancellationRequested && _tcpClient.Connected)
 		{
 			try
 			{
 				BasePacket? packet = await _packetStream.GetPacketAsync(_connectionCancellationToken);
+				if (packet != null)
+				{
+					// Process Packet
+				}
+				else
+				{
+					break;
+				}
 			}
 			catch (Exception)
 			{
 
 			}
 		}
-		Logger.Log("TCP Connection process stopped");
+		Logger.Log($"[Server] [TCP Connection] stopped - {_tcpClient.Client.RemoteEndPoint}");
 		IsConnected = false;
+
+		// This will also call PacketProcessor.OnConnectionLost
+		// This will also mostly not matter if we already called ForcefullyClose already. It is only 
+		// here in the case that the while loop stops (ie when server cancellation token or tcp stops abrubtly)
+		ForcefullyClose("Connection unexpectedly ended :("); 
 		
-		ForcefullyClose();
+		_tcpClient.Close();
 	}
 
 	public override void SendData(BasePacket packet)
 	{
-		_ = _packetStream.SendPacketAsync(packet, _connectionCancellationToken);
+		_ = _packetStream.SendPacketAsync(packet);
 	}
 
 	public override void ForcefullyClose(string disconnectReason = "Disconnected from server for unkown reason.")
 	{
-		Logger.Log("TCP Connection Forcefully closed for reason: " + disconnectReason);
 		base.ForcefullyClose(disconnectReason);
 		_connectionCancellationTokenSource.Cancel();
 	}
