@@ -31,9 +31,10 @@ public class TCPListener : BaseListener
 				var tcpConnection = new TCPConnection(tcpClient, serverCancellationToken);
 				OnNewConnection(tcpConnection);
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-
+				// We will just continue trying to accept new connections even if there is an error on the listener
+				Logger.Log($"[Server] TCP Listener error: {ex.Message}");
 			}
 		}
 		Logger.Log("[Server] TCP Listener ended listening");

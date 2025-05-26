@@ -47,9 +47,9 @@ public class TCPConnection : BaseConnection
 					break;
 				}
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-
+				Logger.Log($"[Server] [TCP Connection] Error while getting packet {ex.Message}");
 			}
 		}
 		Logger.Log($"[Server] [TCP Connection] stopped - {_tcpClient.Client.RemoteEndPoint}");

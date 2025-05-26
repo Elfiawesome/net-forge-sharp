@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NetForge.Shared.Debugging;
 using NetForge.Shared.Network.Packet;
 
 namespace NetForge.Shared.Network.Stream;
@@ -81,8 +82,9 @@ public class PacketStream
 				}
 			}
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
+			Logger.Log($"[PacketStream] Error while reading packet {ex.Message}");
 			return null;
 		}
 	}
