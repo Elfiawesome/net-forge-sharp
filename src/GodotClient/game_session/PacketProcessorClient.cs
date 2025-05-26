@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using NetForge.ClientCore;
+using NetForge.Shared.Debugging;
 using NetForge.Shared.Network.Packet;
 using NetForge.Shared.Network.Packet.Clientbound.Authentication;
+using NetForge.Shared.Network.Packet.Serverbound.Authentication;
 
 namespace NetForge.game_session;
 
@@ -43,15 +45,15 @@ public class PacketProcessorClient : IPacketProcessor
 
 	private void OnDisconnectPacket(S2CDisconnectPacket packet)
 	{
-
+		client.Leave();
 	}
 
 	private void OnLoginSuccessPacket(S2CLoginSuccessPacket packet)
 	{
-
+		client.SendPacket(new C2SLoginResponsePacket(client.ProtocolNumber, "MyUsername"));
 	}
 	private void OnRequestLoginPacket(S2CRequestLoginPacket packet)
 	{
-
+		Logger.Log("[Client] Login successful! Welcome");
 	}
 }
