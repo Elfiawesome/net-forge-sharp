@@ -9,6 +9,8 @@ public abstract class BaseConnection
 	public IPacketProcessor? PacketProcessor;
 	protected bool isClosedSignaled = false;
 
+	public string PlayerId = "";
+
 	public virtual void SendPacket(BasePacket packet)
 	{
 		// To be implemented by concrete connection classes

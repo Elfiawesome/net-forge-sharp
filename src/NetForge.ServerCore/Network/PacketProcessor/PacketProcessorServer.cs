@@ -61,6 +61,24 @@ public class PacketProcessorServer : IPacketProcessor
 			return;
 		}
 
+		if (packet.Username == "")
+		{
+			connection.InitiateClose("Your username cannot be empty");
+			return;
+		}
+
+		// Need to hashing or something in future...
+		string playerId = packet.Username;
+
+		if (server.GameService.IsPlayerInGame(playerId))
+		{
+			connection.InitiateClose("Player with this username is already in game");
+			return;
+		}
+
+		// Successfully logged in
+		connection.PlayerId = playerId;
 		connection.SendPacket(new S2CLoginSuccessPacket());
+		server.GameService.OnPlayerJoinedGame(playerId);
 	}
 }

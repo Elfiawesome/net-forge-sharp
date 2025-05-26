@@ -12,6 +12,7 @@ namespace NetForge.ServerCore.Network.Listener;
 public class TCPListener : BaseListener
 {
 	private readonly TcpListener _tcpListener;
+	private bool _isListening = false;
 
 	public TCPListener(string addressString, int portNumber)
 	{
@@ -22,8 +23,9 @@ public class TCPListener : BaseListener
 
 	public override async Task Listen(CancellationToken serverCancellationToken)
 	{
+		_isListening = true;
 		Logger.Log("[Server] TCP Listener started listening");
-		while (!serverCancellationToken.IsCancellationRequested)
+		while (!serverCancellationToken.IsCancellationRequested && _isListening)
 		{
 			try
 			{
@@ -39,4 +41,10 @@ public class TCPListener : BaseListener
 		}
 		Logger.Log("[Server] TCP Listener ended listening");
 	}
+
+	public override void Stop()
+	{
+		_isListening = false;
+	}
+
 }

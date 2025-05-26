@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using NetForge.ServerCore.GameCore;
 using NetForge.ServerCore.Network;
 using NetForge.ServerCore.Network.Connection;
 using NetForge.ServerCore.Network.Listener;
@@ -12,9 +13,10 @@ public class Server
 {
 	public readonly int ProtocolNumber = 1;
 	private readonly CancellationTokenSource _serverCancellationTokenSource;
-	private readonly CancellationToken _serverCancellationToken;
-	private readonly List<BaseListener> _listeners = [];
+	public readonly CancellationToken _serverCancellationToken;
 	private readonly PacketProcessorServer _packetProcessorServer;
+	public readonly GameService GameService;
+	public readonly NetworkService NetworkService;
 
 	public Server()
 	{
@@ -22,39 +24,27 @@ public class Server
 		_packetProcessorServer = new(this); // note circular reference here
 		_serverCancellationTokenSource = new();
 		_serverCancellationToken = _serverCancellationTokenSource.Token;
+
+		// Services are meant to be parts of the server that I need to seperate out for better organization.
+		NetworkService = new(this);
+		GameService = new(this);
 	}
 
 	public void Start()
 	{
 		Logger.Log("[Server] Starting server...");
 		// Start all listeners
-		foreach (var listener in _listeners)
-		{
-			_ = listener.Listen(_serverCancellationToken);
-		}
+		NetworkService.StartListeners();
 	}
 
 	public void Stop()
 	{
 		Logger.Log("[Server] Stopping server...");
-		// This will stop all BaseListener.Listen and BaseConnection.Process function
-		// BaseConnection Should be eligible for GD since no reference to it + no async left
+		NetworkService.StopListeners();
 		_serverCancellationTokenSource.Cancel();
 	}
 
-	public void AddListener(BaseListener listener)
-	{
-		listener.NewConnectionEvent += OnNewConnection;
-		_listeners.Add(listener);
-	}
-
-	public void RemoveListener(BaseListener listener)
-	{
-		listener.NewConnectionEvent -= OnNewConnection;
-		_listeners.Remove(listener);
-	}
-
-	private void OnNewConnection(BaseConnection connection)
+	public void OnNewConnection(BaseConnection connection)
 	{
 		connection.PacketProcessor = _packetProcessorServer;
 		// Do Handshake

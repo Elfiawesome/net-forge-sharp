@@ -13,7 +13,7 @@ namespace NetForge.ClientCore;
 
 public class Client
 {
-	public readonly int ProtocolNumber = 100;
+	public readonly int ProtocolNumber = 1;
 	private readonly TcpClient _tcpClient;
 	private PacketStream? _packetStream;
 	private readonly CancellationTokenSource _clientCancellationTokenSource;

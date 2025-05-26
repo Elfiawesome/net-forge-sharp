@@ -16,7 +16,7 @@ public partial class ServerNode : Node
 		PacketFactory.Initialize();
 
 		server = new();
-		server.AddListener(new TCPListener("127.0.0.1", 3115));
+		server.NetworkService.AddListener(new TCPListener("127.0.0.1", 3115));
 	}
 
 	public void Start()
