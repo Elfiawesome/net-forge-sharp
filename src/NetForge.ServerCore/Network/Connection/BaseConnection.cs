@@ -5,19 +5,19 @@ namespace NetForge.ServerCore.Network.Connection;
 
 public abstract class BaseConnection
 {
-	private bool hasForcefullyClosed = false;
+	protected bool isClosedSignaled = false;
+	// private bool hasForcefullyClosed = false;
 
 	public virtual void SendData(BasePacket packet)
 	{
 		// To be implemented by concrete connection classes
 	}
 
-	public virtual void ForcefullyClose(string disconnectReason = "Disconnected from server for unkown reason.")
+	// Call this to INITIATE a close from server-side
+	public virtual void InitiateClose(string disconnectReason)
 	{
-		if (!hasForcefullyClosed)
-		{
-			SendData(new S2CDisconnectPacket(disconnectReason));
-			hasForcefullyClosed = true;
-		}
+		if (isClosedSignaled) return;
+		SendData(new S2CDisconnectPacket(disconnectReason));
+		isClosedSignaled = true;
 	}
 }

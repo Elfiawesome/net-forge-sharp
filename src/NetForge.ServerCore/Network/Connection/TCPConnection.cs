@@ -33,9 +33,10 @@ public class TCPConnection : BaseConnection
 	{
 		Logger.Log($"[Server] [TCP Connection] New connection form - {_tcpClient.Client.RemoteEndPoint}");
 		IsConnected = true;
-		while (!_connectionCancellationToken.IsCancellationRequested && _tcpClient.Connected)
+		string disconnectReason = "Connection ended normally by client or stream."; // Default reason
+		try
 		{
-			try
+			while (!_connectionCancellationToken.IsCancellationRequested && _tcpClient.Connected)
 			{
 				BasePacket? packet = await _packetStream.GetPacketAsync(_connectionCancellationToken);
 				if (packet != null)
@@ -44,23 +45,23 @@ public class TCPConnection : BaseConnection
 				}
 				else
 				{
+					disconnectReason = "Client disconnected gracefully (null packet).";
 					break;
 				}
 			}
-			catch (Exception ex)
-			{
-				Logger.Log($"[Server] [TCP Connection] Error while getting packet {ex.Message}");
-			}
 		}
-		Logger.Log($"[Server] [TCP Connection] stopped - {_tcpClient.Client.RemoteEndPoint}");
-		IsConnected = false;
-
-		// This will also call PacketProcessor.OnConnectionLost
-		// This will also mostly not matter if we already called ForcefullyClose already. It is only 
-		// here in the case that the while loop stops (ie when server cancellation token or tcp stops abrubtly)
-		ForcefullyClose("Connection unexpectedly ended :("); 
-		
-		_tcpClient.Close();
+		catch (Exception ex)
+		{
+			disconnectReason = $"Server error in reading packet: {ex.Message}";
+			Logger.Log($"[Server] [TCP Connection] Error while getting packet {ex.Message}");
+		}
+		finally
+		{
+			// Initiate close. But this will basically do nothing if we already closed from outside
+			InitiateClose(disconnectReason);
+			Cleanup();
+			Logger.Log($"[Server] [TCP Connection] stopped - {_tcpClient.Client.RemoteEndPoint}");
+		}
 	}
 
 	public override void SendData(BasePacket packet)
@@ -68,9 +69,26 @@ public class TCPConnection : BaseConnection
 		_ = _packetStream.SendPacketAsync(packet);
 	}
 
-	public override void ForcefullyClose(string disconnectReason = "Disconnected from server for unkown reason.")
+
+	// Call this to INITIATE a close from server-side
+	public override void InitiateClose(string disconnectReason)
 	{
-		base.ForcefullyClose(disconnectReason);
+		base.InitiateClose(disconnectReason);
 		_connectionCancellationTokenSource.Cancel();
+	}
+
+	// WILL run whenever the connection is closed either by server or not.
+	private void Cleanup()
+	{
+		IsConnected = false;
+		try
+		{
+			_tcpClient.Close();
+		}
+		catch (Exception ex)
+		{
+			Logger.Log($"[Server] [TCP Connection] Error closing TcpClient: {ex.Message}");
+		}
+		_connectionCancellationTokenSource.Dispose();
 	}
 }
