@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using NetForge.Shared.Network.Packet;
 
 namespace NetForge.ServerCore.GameCore;
 
@@ -10,7 +11,7 @@ public class GameService : BaseServerService
 	public GameService(Server server) : base(server)
 	{
 	}
-	
+
 	public void OnPlayerJoinedGame(string playerId)
 	{
 		if (_players.ContainsKey(playerId)) { return; } // Shouldnt happen since OnPlayerJoiendGame only happens if we dont have an existing player
