@@ -7,6 +7,7 @@ public enum PacketId : ushort
 	TestPacket,
 	S2CDisconnectPacket,
 	S2CRequestLoginPacket,
+	S2CLoginSuccessPacket,
 	C2SLoginResponsePacket,
 }
 

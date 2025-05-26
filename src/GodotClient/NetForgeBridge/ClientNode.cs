@@ -13,7 +13,7 @@ public partial class ClientNode : Node
 
 	public void ConnectToServer()
 	{
-		_client.Connect();
+		_client.Connect("127.0.0.1", 3115);
 	}
 
 	public void Leave()

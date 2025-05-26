@@ -1,3 +1,4 @@
+using NetForge.ServerCore.Network.PacketProcessor;
 using NetForge.Shared.Network.Packet;
 using NetForge.Shared.Network.Packet.Clientbound.Authentication;
 
@@ -5,10 +6,10 @@ namespace NetForge.ServerCore.Network.Connection;
 
 public abstract class BaseConnection
 {
+	public IPacketProcessor? PacketProcessor;
 	protected bool isClosedSignaled = false;
-	// private bool hasForcefullyClosed = false;
 
-	public virtual void SendData(BasePacket packet)
+	public virtual void SendPacket(BasePacket packet)
 	{
 		// To be implemented by concrete connection classes
 	}
@@ -17,7 +18,8 @@ public abstract class BaseConnection
 	public virtual void InitiateClose(string disconnectReason)
 	{
 		if (isClosedSignaled) return;
-		SendData(new S2CDisconnectPacket(disconnectReason));
+		SendPacket(new S2CDisconnectPacket(disconnectReason));
+		PacketProcessor?.OnConnectionLost(disconnectReason);
 		isClosedSignaled = true;
 	}
 }

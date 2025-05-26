@@ -42,6 +42,7 @@ public class TCPConnection : BaseConnection
 				if (packet != null)
 				{
 					// Process Packet
+					PacketProcessor?.ProcessPacket(this, packet);
 				}
 				else
 				{
@@ -58,13 +59,13 @@ public class TCPConnection : BaseConnection
 		finally
 		{
 			// Initiate close. But this will basically do nothing if we already closed from outside
+			Logger.Log($"[Server] [TCP Connection] stopped - {_tcpClient.Client.RemoteEndPoint}");
 			InitiateClose(disconnectReason);
 			Cleanup();
-			Logger.Log($"[Server] [TCP Connection] stopped - {_tcpClient.Client.RemoteEndPoint}");
 		}
 	}
 
-	public override void SendData(BasePacket packet)
+	public override void SendPacket(BasePacket packet)
 	{
 		_ = _packetStream.SendPacketAsync(packet);
 	}

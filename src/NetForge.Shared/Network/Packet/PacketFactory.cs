@@ -14,6 +14,8 @@ public static class PacketFactory
 		Register<S2CDisconnectPacket>(PacketId.S2CDisconnectPacket);
 		Register<S2CRequestLoginPacket>(PacketId.S2CRequestLoginPacket);
 		Register<C2SLoginResponsePacket>(PacketId.C2SLoginResponsePacket);
+		Register<S2CLoginSuccessPacket>(PacketId.S2CLoginSuccessPacket);
+		
 	}
 
 	public static void Register<TPacket>(PacketId packetId) where TPacket : BasePacket, new()

@@ -18,7 +18,7 @@ public static class Program
 		
 		// Testing with a client connection
 		Client client = new();
-		client.Connect();
+		client.Connect("127.0.0.1", 3115);
 
 		while (true)
 		{
