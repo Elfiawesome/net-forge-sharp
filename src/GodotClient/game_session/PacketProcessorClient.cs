@@ -13,9 +13,11 @@ public class PacketProcessorClient : IPacketProcessor
 
 	private readonly Dictionary<PacketId, Action<BasePacket>> _handlers = [];
 	private readonly Client client;
+	private readonly GameSession session;
 
-	public PacketProcessorClient(Client client)
+	public PacketProcessorClient(Client client, GameSession session)
 	{
+		this.session = session;
 		this.client = client;
 		// Register packet handlers
 		RegisterPacketHandler<S2CDisconnectPacket>(PacketId.S2CDisconnectPacket, OnDisconnectPacket);
@@ -50,8 +52,9 @@ public class PacketProcessorClient : IPacketProcessor
 
 	private void OnLoginSuccessPacket(S2CLoginSuccessPacket packet)
 	{
-		client.SendPacket(new C2SLoginResponsePacket(client.ProtocolNumber, "MyUsername"));
+		client.SendPacket(new C2SLoginResponsePacket(client.ProtocolNumber, session.Username));
 	}
+
 	private void OnRequestLoginPacket(S2CRequestLoginPacket packet)
 	{
 		Logger.Log("[Client] Login successful! Welcome");

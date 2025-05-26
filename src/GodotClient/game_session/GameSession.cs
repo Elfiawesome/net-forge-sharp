@@ -10,18 +10,25 @@ public partial class GameSession : Node
 {
 	public Client client;
 	private Server IntegratedServer;
+	public string Username;
 
 	public override void _Ready()
 	{
-		Logger.Log("[GameSession] GameSession Readied");
 		// Initialize the integrated server and connect to it
-		IntegratedServer = new();
-		IntegratedServer.NetworkService.AddListener(new TCPListener("127.0.0.1", 3115));
-		IntegratedServer.Start();
+		var GlobalNode = GetNode("/root/Global");
+
+		int InstanceNum = (int)GlobalNode.Get("instance_num");
+		if (InstanceNum == 0)
+		{
+			IntegratedServer = new();
+			IntegratedServer.NetworkService.AddListener(new TCPListener("127.0.0.1", 3115));
+			IntegratedServer.Start();
+		}
 
 		// Set our own GD version PacketProcessor
+		Username = (string)GlobalNode.Get("username");
 		client = new Client();
-		client.PacketProcessor = new PacketProcessorClient(client);
+		client.PacketProcessor = new PacketProcessorClient(client, this);
 		ConnectToServer("127.0.0.1", 3115);
 	}
 
