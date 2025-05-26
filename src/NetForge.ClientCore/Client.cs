@@ -5,12 +5,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetForge.Shared.Debugging;
 using NetForge.Shared.Network.Packet;
-using NetForge.Shared.Network.Packet.Clientbound.Authentication;
-using NetForge.Shared.Network.Packet.Serverbound.Authentication;
 using NetForge.Shared.Network.Stream;
 
 namespace NetForge.ClientCore;
 
+
+// Wrapper to simplify networking
 public class Client
 {
 	public readonly int ProtocolNumber = 1;
@@ -19,6 +19,8 @@ public class Client
 	private readonly CancellationTokenSource _clientCancellationTokenSource;
 	private readonly CancellationToken _clientCancellationToken;
 	private Task? _listeningTask;
+	public IPacketProcessor ?PacketProcessor;
+
 
 	public Client()
 	{
@@ -61,7 +63,8 @@ public class Client
 				{
 					break;
 				}
-				HandlePacket(packet);
+
+				PacketProcessor?.ProcessPacket(packet);
 			}
 			catch (Exception)
 			{
@@ -81,32 +84,5 @@ public class Client
 	{
 		if (_packetStream == null) { return; }
 		_ = _packetStream.SendPacketAsync(packet);
-	}
-
-	private void HandlePacket(BasePacket packet)
-	{
-		if (_packetStream == null) { return; }
-		switch (packet.Id)
-		{
-			case PacketId.S2CRequestLoginPacket:
-				if (packet is S2CRequestLoginPacket loginPacket)
-				{
-					SendPacket(new C2SLoginResponsePacket(ProtocolNumber, "MyUsername"));
-				}
-				break;
-			case PacketId.S2CDisconnectPacket:
-				if (packet is S2CDisconnectPacket disconnectPacket)
-				{
-					Logger.Log("[Client] Disconnected from server due to: " + disconnectPacket.Reason);
-					_clientCancellationTokenSource.Cancel();
-				}
-				break;
-			case PacketId.S2CLoginSuccessPacket:
-				if (packet is S2CLoginSuccessPacket successPacket)
-				{
-					Logger.Log("[Client] Login successful! Welcome");
-				}
-				break;
-		}
 	}
 }
