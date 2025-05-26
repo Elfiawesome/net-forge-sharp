@@ -42,9 +42,15 @@ public class Server
 		_listeners.Add(listener);
 	}
 
+	public void RemoveListener(BaseListener listener)
+	{
+		listener.NewConnectionEvent -= OnNewConnection;
+		_listeners.Remove(listener);
+	}
+
 	private void OnNewConnection(BaseConnection connection)
 	{
 		// Do Handshake
-		
+
 	}
 }
