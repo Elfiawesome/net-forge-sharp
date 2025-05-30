@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
+    <nullable>enable</nullable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\NetForge.ClientCore\NetForge.ClientCore.csproj" />

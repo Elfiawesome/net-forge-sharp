@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetForge.Shared.Debugging;
 using NetForge.Shared.Network.Packet;
+using NetForge.Shared.Network.Packet.Clientbound.Authentication;
+using NetForge.Shared.Network.Packet.Serverbound.Authentication;
 using NetForge.Shared.Network.Stream;
 
 namespace NetForge.ClientCore;
@@ -19,7 +21,7 @@ public class Client
 	private readonly CancellationTokenSource _clientCancellationTokenSource;
 	private readonly CancellationToken _clientCancellationToken;
 	private Task? _listeningTask;
-	public IPacketProcessor ?PacketProcessor;
+	private bool _isAuthenticated = false;
 
 
 	public Client()
@@ -30,7 +32,7 @@ public class Client
 		_tcpClient = new();
 	}
 
-	public void Connect(string ipAddressString, int port)
+	public void Connect(string ipAddressString, int port, string loginUsername = "DefaultUsername")
 	{
 		try
 		{
@@ -40,7 +42,7 @@ public class Client
 			_packetStream = new PacketStream(_tcpClient.GetStream());
 
 			Logger.Log("[Client] Connecting to server");
-			_listeningTask = Listen();
+			_listeningTask = Listen(loginUsername);
 		}
 		catch (Exception ex)
 		{
@@ -51,7 +53,7 @@ public class Client
 		}
 	}
 
-	private async Task Listen()
+	private async Task Listen(string loginUsername)
 	{
 		while (!_clientCancellationToken.IsCancellationRequested)
 		{
@@ -63,8 +65,16 @@ public class Client
 				{
 					break;
 				}
+				Logger.Log($"[Client] Received packet: {packet.GetType().Name}");
+				if (_isAuthenticated == false)
+				{
+					if (packet is S2CRequestLoginPacket)
+					{
+						SendPacket(new C2SLoginResponsePacket(ProtocolNumber, loginUsername));
+					}
+				}
 
-				PacketProcessor?.ProcessPacket(packet);
+				// TODO: Handle the packet
 			}
 			catch (Exception)
 			{

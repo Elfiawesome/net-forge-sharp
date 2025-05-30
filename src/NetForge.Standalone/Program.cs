@@ -12,13 +12,14 @@ public static class Program
 	{
 		PacketFactory.Initialize();
 		
-		Server? server = new();
+		Server server = new();
 		server.NetworkService.AddListener(new TCPListener("127.0.0.1", 3115));
 		server.Start();
 		
 		// Testing with a client connection
 		Client client = new();
-		client.Connect("127.0.0.1", 3115);
+		client.Connect("127.0.0.1", 3115, "Elfiawesome");
+		
 
 		while (true)
 		{

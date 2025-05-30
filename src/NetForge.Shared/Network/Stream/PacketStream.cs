@@ -135,9 +135,9 @@ public class PacketStream
 				}
 			}
 		}
-		catch (Exception)
+		catch (Exception ex)
 		{
-
+			Logger.Log($"[PacketStream] Error while sending packet {ex.Message}");
 		}
 	}
 }

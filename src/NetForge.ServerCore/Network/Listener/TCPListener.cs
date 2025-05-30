@@ -24,7 +24,7 @@ public class TCPListener : BaseListener
 	public override async Task Listen(CancellationToken serverCancellationToken)
 	{
 		_isListening = true;
-		Logger.Log("[Server] TCP Listener started listening");
+		Logger.Log("[Server] [TCP Listener] started listening");
 		while (!serverCancellationToken.IsCancellationRequested && _isListening)
 		{
 			try
@@ -36,10 +36,10 @@ public class TCPListener : BaseListener
 			catch (Exception ex)
 			{
 				// We will just continue trying to accept new connections even if there is an error on the listener
-				Logger.Log($"[Server] TCP Listener error: {ex.Message}");
+				Logger.Log($"[Server] [TCP Listener] error: {ex.Message}, continuing to listen...");
 			}
 		}
-		Logger.Log("[Server] TCP Listener ended listening");
+		Logger.Log("[Server] [TCP Listener] ended listening");
 	}
 
 	public override void Stop()

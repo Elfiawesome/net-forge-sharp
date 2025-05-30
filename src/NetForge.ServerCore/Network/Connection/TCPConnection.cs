@@ -31,7 +31,7 @@ public class TCPConnection : BaseConnection
 
 	private async Task Process()
 	{
-		Logger.Log($"[Server] [TCP Connection] New connection form - {_tcpClient.Client.RemoteEndPoint}");
+		Logger.Log($"[Server] [TCP Connection] New TCP Connection from - {_tcpClient.Client.RemoteEndPoint}");
 		IsConnected = true;
 		string disconnectReason = "Connection ended normally by client or stream."; // Default reason
 		try
@@ -41,8 +41,7 @@ public class TCPConnection : BaseConnection
 				BasePacket? packet = await _packetStream.GetPacketAsync(_connectionCancellationToken);
 				if (packet != null)
 				{
-					// Process Packet
-					PacketProcessor?.ProcessPacket(this, packet);
+					OnPacketReceivedEvent(packet);
 				}
 				else
 				{
@@ -59,7 +58,7 @@ public class TCPConnection : BaseConnection
 		finally
 		{
 			// Initiate close. But this will basically do nothing if we already closed from outside
-			Logger.Log($"[Server] [TCP Connection] stopped - {_tcpClient.Client.RemoteEndPoint}");
+			Logger.Log($"[Server] [TCP Connection] Stopped - {_tcpClient.Client.RemoteEndPoint}");
 			InitiateClose(disconnectReason);
 			Cleanup();
 		}

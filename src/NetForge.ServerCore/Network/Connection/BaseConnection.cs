@@ -1,4 +1,5 @@
-using NetForge.ServerCore.Network.PacketProcessor;
+using System;
+using NetForge.Shared;
 using NetForge.Shared.Network.Packet;
 using NetForge.Shared.Network.Packet.Clientbound.Authentication;
 
@@ -6,7 +7,10 @@ namespace NetForge.ServerCore.Network.Connection;
 
 public abstract class BaseConnection
 {
-	public IPacketProcessor? PacketProcessor;
+	public event Action<BaseConnection> ConnectionClosedEvent = delegate { };
+	public event Action<BaseConnection, PlayerId> ConnectionAuthenticatedEvent = delegate { };
+	public event Action<BaseConnection, BasePacket> PacketReceivedEvent = delegate { };
+
 	protected bool isClosedSignaled = false;
 
 	public string PlayerId = "";
@@ -21,7 +25,22 @@ public abstract class BaseConnection
 	{
 		if (isClosedSignaled) return;
 		SendPacket(new S2CDisconnectPacket(disconnectReason));
-		PacketProcessor?.OnConnectionLost(disconnectReason);
+		OnConnectionClosedEvent();
 		isClosedSignaled = true;
+	}
+
+	public void OnConnectionClosedEvent()
+	{
+		ConnectionClosedEvent.Invoke(this);
+	}
+
+	public void OnConnectionAuthenticatedEvent(PlayerId playerId)
+	{
+		ConnectionAuthenticatedEvent.Invoke(this, playerId);
+	}
+
+	public void OnPacketReceivedEvent(BasePacket packet)
+	{
+		PacketReceivedEvent.Invoke(this, packet);
 	}
 }
