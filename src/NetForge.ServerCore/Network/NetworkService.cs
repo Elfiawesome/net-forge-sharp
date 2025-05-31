@@ -56,6 +56,11 @@ public class NetworkService
 		_CancellationTokenSource.Cancel();
 	}
 
+	public void ManualAddNewConnection(BaseConnection connection)
+	{
+		OnNewConnection(connection);
+	}
+
 	private void OnNewConnection(BaseConnection connection)
 	{
 		// Attach connection to myself
