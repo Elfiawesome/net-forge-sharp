@@ -1,7 +1,9 @@
 
 using System.Threading;
+using NetForge.Shared;
+using NetForge.Shared.Network.Packet;
 
-namespace NetForge.ServerCore.GameCore;
+namespace NetForge.ServerCore.Game;
 
 public class GameService
 {
@@ -13,4 +15,18 @@ public class GameService
 		_CancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_parentCancellationToken);
 		_CancellationToken = _CancellationTokenSource.Token;
 	}
+
+
+	public void OnPlayerJoined(PlayerId playerId)
+	{
+	}
+
+	public void OnPlayerLeft(PlayerId playerId)
+	{
+	}
+
+	public void OnPlayerPacketReceived(PlayerId playerId, BasePacket packet)
+	{
+	}
+
 }

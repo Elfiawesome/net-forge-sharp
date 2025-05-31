@@ -2,22 +2,25 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using NetForge.ServerCore.Authentication;
 using NetForge.ServerCore.Network.Connection;
 using NetForge.ServerCore.Network.Listener;
 using NetForge.Shared;
-using NetForge.Shared.Debugging;
 using NetForge.Shared.Network.Packet;
-using NetForge.Shared.Network.Packet.Clientbound.Authentication;
-using NetForge.Shared.Network.Packet.Serverbound.Authentication;
 
 namespace NetForge.ServerCore.Network;
 
 public class NetworkService
 {
+	public event Action<PlayerId> PlayerConnectedEvent = delegate { };
+	public event Action<PlayerId> PlayerDisconnectedEvent = delegate { };
+	public event Action<PlayerId, BasePacket> PlayerPacketReceived = delegate { };	
+
+
 	public readonly int ProtocolNumber = 1;
-	public event Action<PlayerId> NewConnectionEvent = delegate { };
 	private readonly CancellationTokenSource _CancellationTokenSource;
 	private readonly CancellationToken _CancellationToken;
+	private readonly AuthenticationHandler _authenticationHandler = new();
 	private readonly List<BaseListener> _listeners = [];
 	private readonly Dictionary<PlayerId, BaseConnection> _connections = [];
 
@@ -55,10 +58,50 @@ public class NetworkService
 
 	private void OnNewConnection(BaseConnection connection)
 	{
-		// 1. S->C Request player for login request
-		// 2. C->S Send login request with username
-		// 3. S->C Send login success packet with player ID
-		// 4. NetworkService will notify GameService that a new player has connected using PlayerID and store Connection inside of a dictionary.
-		// Meaning to say Connection object will not leave NetworkService.
+		// Attach connection to myself
+		connection.PacketReceivedEvent += OnPacketReceived;
+		connection.ConnectionClosedEvent += OnConnectionClosed;
+		// Attach connection authentication event to myself
+		connection.ConnectionAuthenticatedEvent += OnConnectionAuthenticated;
+
+		_authenticationHandler.HandleConnection(connection);
+	}
+
+	private void OnConnectionAuthenticated(BaseConnection connection, PlayerId id)
+	{
+		// Detach connection authentication event to myself
+		connection.ConnectionAuthenticatedEvent -= OnConnectionAuthenticated;
+
+		if (_connections.ContainsKey(id))
+		{
+			connection.InitiateClose("Connection already exists with this PlayerId.");
+			return;
+		}
+
+		_connections[id] = connection;
+		PlayerConnectedEvent.Invoke(id);
+	}
+
+
+	private void OnConnectionClosed(BaseConnection connection)
+	{
+		// Detach connection from myself
+		connection.PacketReceivedEvent -= OnPacketReceived;
+		connection.ConnectionClosedEvent -= OnConnectionClosed;
+
+		// Need check if this event is still subscribed onto it because if it is closed after authentication, it will no longer be signal connected
+		connection.ConnectionAuthenticatedEvent -= OnConnectionAuthenticated;
+
+		if (connection.Id != null)
+		{
+			PlayerDisconnectedEvent.Invoke(connection.Id);
+		}
+	}
+
+
+	private void OnPacketReceived(BaseConnection connection, BasePacket packet)
+	{
+		if (connection.Id == null) { return; }
+		PlayerPacketReceived.Invoke(connection.Id, packet);
 	}
 }

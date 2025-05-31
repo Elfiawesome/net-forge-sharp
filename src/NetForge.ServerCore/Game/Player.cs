@@ -1,4 +1,4 @@
-namespace NetForge.ServerCore.GameCore;
+namespace NetForge.ServerCore.Game;
 
 // The game representation of a player in the game. It will hold all global game player data and not much networking
 public class Player

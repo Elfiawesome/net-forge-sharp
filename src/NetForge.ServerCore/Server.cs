@@ -1,5 +1,5 @@
 ﻿using System.Threading;
-using NetForge.ServerCore.GameCore;
+using NetForge.ServerCore.Game;
 using NetForge.ServerCore.Network;
 using NetForge.Shared.Debugging;
 
@@ -21,9 +21,25 @@ public class Server
 		GameService = new(_serverCancellationToken);
 	}
 
+
+	private void Wire()
+	{
+		NetworkService.PlayerConnectedEvent += GameService.OnPlayerJoined;
+		NetworkService.PlayerDisconnectedEvent += GameService.OnPlayerLeft;
+		NetworkService.PlayerPacketReceived += GameService.OnPlayerPacketReceived;
+	}
+
+	private void Unwire()
+	{
+		NetworkService.PlayerConnectedEvent -= GameService.OnPlayerJoined;
+		NetworkService.PlayerDisconnectedEvent -= GameService.OnPlayerLeft;
+		NetworkService.PlayerPacketReceived -= GameService.OnPlayerPacketReceived;		
+	}
+
 	public void Start()
 	{
 		Logger.Log("[Server] Starting server...");
+		Wire();
 		// Start all listeners
 		NetworkService.StartListeners();
 	}
@@ -31,6 +47,7 @@ public class Server
 	public void Stop()
 	{
 		Logger.Log("[Server] Stopping server...");
+		Unwire();
 		NetworkService.StopListeners();
 		_serverCancellationTokenSource.Cancel();
 	}

@@ -12,7 +12,7 @@ public partial class GameSession : Node
 
 	public override void _Ready()
 	{
-		Logger.MessageLoggedEvent += (message) =>{GD.Print(message);};
+		Logger.MessageLoggedEvent += (message) => { GD.Print(message); };
 		PacketFactory.Initialize();
 
 		IntegratedServer = new Server();

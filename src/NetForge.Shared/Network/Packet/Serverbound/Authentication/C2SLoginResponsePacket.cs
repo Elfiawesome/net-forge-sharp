@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 
 namespace NetForge.Shared.Network.Packet.Serverbound.Authentication;

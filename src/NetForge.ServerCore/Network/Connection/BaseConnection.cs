@@ -13,7 +13,7 @@ public abstract class BaseConnection
 
 	protected bool isClosedSignaled = false;
 
-	public string PlayerId = "";
+	public PlayerId? Id { get; protected set; } = null;
 
 	public virtual void SendPacket(BasePacket packet)
 	{
@@ -36,6 +36,8 @@ public abstract class BaseConnection
 
 	public void OnConnectionAuthenticatedEvent(PlayerId playerId)
 	{
+		SendPacket(new S2CLoginSuccessPacket(playerId));
+		Id = playerId;
 		ConnectionAuthenticatedEvent.Invoke(this, playerId);
 	}
 

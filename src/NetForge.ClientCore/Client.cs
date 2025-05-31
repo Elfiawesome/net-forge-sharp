@@ -65,12 +65,24 @@ public class Client
 				{
 					break;
 				}
-				Logger.Log($"[Client] Received packet: {packet.GetType().Name}");
+
+				if (packet is S2CDisconnectPacket disconnectPacket)
+				{
+					Logger.Log($"[Client] Disconnected from server: {disconnectPacket.Reason}");
+					break;
+				}
+
+				// Simple Authentication Process
 				if (_isAuthenticated == false)
 				{
 					if (packet is S2CRequestLoginPacket)
 					{
 						SendPacket(new C2SLoginResponsePacket(ProtocolNumber, loginUsername));
+					}
+					if (packet is S2CLoginSuccessPacket)
+					{
+						_isAuthenticated = true;
+						Logger.Log("[Client] Authentication successful");
 					}
 				}
 
