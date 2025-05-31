@@ -1,15 +1,14 @@
+using NetForge.Shared;
+
 namespace NetForge.ServerCore.Game;
 
 // The game representation of a player in the game. It will hold all global game player data and not much networking
 public class Player
 {
-	public readonly string Id;
-	public string Username { get; }
-	public string DisplayName => Username;
+	public readonly PlayerId Id;
 
-	public Player(string id, string username)
+	public Player(PlayerId id)
 	{
 		Id = id;
-		Username = username;
 	}
 }

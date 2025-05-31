@@ -42,6 +42,8 @@ public class Server
 		Wire();
 		// Start all listeners
 		NetworkService.StartListeners();
+		GameService.Start();
+		
 	}
 
 	public void Stop()
@@ -49,6 +51,7 @@ public class Server
 		Logger.Log("[Server] Stopping server...");
 		Unwire();
 		NetworkService.StopListeners();
+		GameService.Stop();
 		_serverCancellationTokenSource.Cancel();
 	}
 }
