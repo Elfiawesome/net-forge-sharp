@@ -15,6 +15,8 @@ namespace NetForge.ClientCore;
 // Wrapper to simplify networking
 public class Client
 {
+	public event Action<BasePacket> PacketReceivedEvent = delegate { };
+
 	public readonly int ProtocolNumber = 1;
 	private readonly TcpClient _tcpClient;
 	private PacketStream? _packetStream;
@@ -85,8 +87,10 @@ public class Client
 						Logger.Log("[Client] Authentication successful");
 					}
 				}
-
-				// TODO: Handle the packet
+				else
+				{
+					PacketReceivedEvent.Invoke(packet);
+				}
 			}
 			catch (Exception)
 			{

@@ -21,6 +21,10 @@ public partial class GameSession : Node
 
 		client = new();
 		client.Connect("127.0.0.1", 3115, "TestPlayer");
+		client.PacketReceivedEvent += (packet) =>
+		{
+			GD.Print($"[Client] Received packet: {packet.GetType().Name}");
+		};
 	}
 	
 }
