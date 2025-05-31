@@ -12,21 +12,15 @@ using NetForge.Shared.Network.Stream;
 namespace NetForge.ClientCore;
 
 
-// Wrapper to simplify networking
-public class Client
+public class TCPClient : BaseClient
 {
-	public event Action<BasePacket> PacketReceivedEvent = delegate { };
-
-	public readonly int ProtocolNumber = 1;
 	private readonly TcpClient _tcpClient;
 	private PacketStream? _packetStream;
 	private readonly CancellationTokenSource _clientCancellationTokenSource;
 	private readonly CancellationToken _clientCancellationToken;
 	private Task? _listeningTask;
-	private bool _isAuthenticated = false;
 
-
-	public Client()
+	public TCPClient()
 	{
 		_clientCancellationTokenSource = new();
 		_clientCancellationToken = _clientCancellationTokenSource.Token;
@@ -34,8 +28,9 @@ public class Client
 		_tcpClient = new();
 	}
 
-	public void Connect(string ipAddressString, int port, string loginUsername = "DefaultUsername")
+	public override void Connect(string ipAddressString, int port, string loginUsername = "DefaultUsername")
 	{
+		base.Connect(ipAddressString, port, loginUsername);
 		try
 		{
 			IPAddress ipAddress = IPAddress.Parse(ipAddressString);
@@ -75,6 +70,7 @@ public class Client
 				}
 
 				// Simple Authentication Process
+				// TODO Make authentication on base client instead
 				if (_isAuthenticated == false)
 				{
 					if (packet is S2CRequestLoginPacket)
@@ -89,7 +85,7 @@ public class Client
 				}
 				else
 				{
-					PacketReceivedEvent.Invoke(packet);
+					OnPacketReceived(packet);
 				}
 			}
 			catch (Exception)
@@ -97,18 +93,17 @@ public class Client
 
 			}
 		}
-		_tcpClient.Close();
-		Logger.Log("[Client] Ended Listening");
 	}
-
-	public void Leave()
+	
+	public override void Leave()
 	{
 		_clientCancellationTokenSource.Cancel();
 	}
 
-	public void SendPacket(BasePacket packet)
+	public override void SendPacket(BasePacket packet)
 	{
 		if (_packetStream == null) { return; }
 		_ = _packetStream.SendPacketAsync(packet);
 	}
 }
+

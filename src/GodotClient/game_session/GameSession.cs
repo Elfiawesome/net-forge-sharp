@@ -7,7 +7,7 @@ using NetForge.Shared.Network.Packet;
 
 public partial class GameSession : Node
 {
-	public Client? client;
+	public TCPClient? client;
 	private Server? IntegratedServer;
 
 	public override void _Ready()
