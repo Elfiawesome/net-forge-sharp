@@ -15,6 +15,7 @@ public class GameService
 	private readonly CancellationToken _CancellationToken;
 	private Task ?_processTask;
 	private readonly Dictionary<PlayerId, Player> _players = [];
+	public Dictionary<PlayerId, Player> Players { get => _players; }
 
 	public GameService(CancellationToken _parentCancellationToken)
 	{
@@ -43,8 +44,6 @@ public class GameService
 			try
 			{
 				await Task.Delay(1000);
-				Logger.Log("[GameService] Ticked!");
-				Logger.Log(_players.Count.ToString());
 			}
 			catch (Exception)
 			{

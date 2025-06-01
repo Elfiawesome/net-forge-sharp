@@ -39,7 +39,7 @@ public class TCPClient : BaseClient
 			_packetStream = new PacketStream(_tcpClient.GetStream());
 
 			Logger.Log("[Client] Connecting to server");
-			_listeningTask = Listen(loginUsername);
+			_listeningTask = Listen();
 		}
 		catch (Exception ex)
 		{
@@ -50,7 +50,7 @@ public class TCPClient : BaseClient
 		}
 	}
 
-	private async Task Listen(string loginUsername)
+	private async Task Listen()
 	{
 		while (!_clientCancellationToken.IsCancellationRequested)
 		{
@@ -62,30 +62,9 @@ public class TCPClient : BaseClient
 				{
 					break;
 				}
-
-				if (packet is S2CDisconnectPacket disconnectPacket)
+				if (!HandlePacket(packet))
 				{
-					Logger.Log($"[Client] Disconnected from server: {disconnectPacket.Reason}");
 					break;
-				}
-
-				// Simple Authentication Process
-				// TODO Make authentication on base client instead
-				if (_isAuthenticated == false)
-				{
-					if (packet is S2CRequestLoginPacket)
-					{
-						SendPacket(new C2SLoginResponsePacket(ProtocolNumber, loginUsername));
-					}
-					if (packet is S2CLoginSuccessPacket)
-					{
-						_isAuthenticated = true;
-						Logger.Log("[Client] Authentication successful");
-					}
-				}
-				else
-				{
-					OnPacketReceived(packet);
 				}
 			}
 			catch (Exception)

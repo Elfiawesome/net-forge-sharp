@@ -16,6 +16,10 @@ config/features=PackedStringArray("4.4", "C#", "Forward Plus")
 boot_splash/show_image=false
 config/icon="res://icon.svg"
 
+[autoload]
+
+Global="*res://global/Global.cs"
+
 [debug]
 
 gdscript/warnings/untyped_declaration=2
