@@ -79,7 +79,7 @@ public class TCPClient : BaseClient
 		_clientCancellationTokenSource.Cancel();
 	}
 
-	public override void SendPacket(BasePacket packet)
+	public override void SendPacket<TPacket>(TPacket packet)
 	{
 		if (_packetStream == null) { return; }
 		_ = _packetStream.SendPacketAsync(packet);

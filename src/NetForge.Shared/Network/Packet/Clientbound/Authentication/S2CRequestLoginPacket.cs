@@ -1,16 +1,13 @@
 using System.IO;
+using MessagePack;
 
 namespace NetForge.Shared.Network.Packet.Clientbound.Authentication;
 
+[MessagePackObject]
 public class S2CRequestLoginPacket : BasePacket
 {
 	public override PacketId Id => PacketId.S2CRequestLoginPacket;
 
-	public override void DeserializePayload(BinaryReader reader)
-	{
-	}
-
-	public override void SerializePayload(BinaryWriter writer)
-	{
-	}
+	[Key(0)]
+	public string WelcomeMessage { get; set; } = "Hello!";
 }

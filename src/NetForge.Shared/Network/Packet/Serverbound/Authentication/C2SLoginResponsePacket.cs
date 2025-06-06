@@ -1,12 +1,17 @@
-using System.IO;
+using MessagePack;
 
 namespace NetForge.Shared.Network.Packet.Serverbound.Authentication;
 
+[MessagePackObject]
 public class C2SLoginResponsePacket : BasePacket
 {
 	public override PacketId Id => PacketId.C2SLoginResponsePacket;
-	public int ProtocolNumber = -1;
-	public string Username = string.Empty;
+
+	[Key(0)]
+	public int ProtocolNumber { get; set; } = -1;
+
+	[Key(1)]
+	public string Username { get; set; } = string.Empty;
 	
 	public C2SLoginResponsePacket() { }
 
@@ -14,17 +19,5 @@ public class C2SLoginResponsePacket : BasePacket
 	{
 		Username = username;
 		ProtocolNumber = protocolNumber;
-	}
-
-	public override void DeserializePayload(BinaryReader reader)
-	{
-		ProtocolNumber = reader.ReadInt32();
-		Username = reader.ReadString();
-	}
-
-	public override void SerializePayload(BinaryWriter writer)
-	{
-		writer.Write(ProtocolNumber);
-		writer.Write(Username);
 	}
 }

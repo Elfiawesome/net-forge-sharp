@@ -1,14 +1,14 @@
 using System;
-using NetForge.Shared.Network.Packet;
+using NetForge.Shared.Network;
 
 namespace NetForge.ClientCore;
 
 public class IntegratedClient : BaseClient
 {
-	public event Action<BasePacket> PacketSentEvent = delegate { };
+	public IConnection ?ServerConnection;
 
-	public override void SendPacket(BasePacket packet)
+	public override void SendPacket<TPacket>(TPacket packet)
 	{
-		PacketSentEvent.Invoke(packet);
+		ServerConnection?.HandlePacket(packet);
 	}
 }

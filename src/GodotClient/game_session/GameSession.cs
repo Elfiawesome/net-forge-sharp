@@ -1,10 +1,13 @@
+using System.Data.Common;
 using Godot;
+using MessagePack;
 using NetForge.ClientCore;
 using NetForge.ServerCore;
 using NetForge.ServerCore.Network.Connection;
 using NetForge.ServerCore.Network.Listener;
 using NetForge.Shared.Debugging;
 using NetForge.Shared.Network.Packet;
+using NetForge.Shared.Network.Packet.Clientbound.Authentication;
 
 public partial class GameSession : Node
 {
@@ -22,12 +25,8 @@ public partial class GameSession : Node
 			// Connect 2 integrated systems together
 			var integratedConnection = new IntegratedConnection();
 			var integratedClient = new IntegratedClient();
-			integratedConnection.PacketSentEvent += (packet) =>
-			{
-				integratedClient.HandlePacket(packet);
-			};
-			integratedClient.PacketSentEvent += integratedConnection.OnPacketReceivedEvent;
-
+			integratedConnection.ClientConnection = integratedClient;
+			integratedClient.ServerConnection = integratedConnection;
 
 			// Start server
 			IntegratedServer = new Server();
@@ -35,7 +34,7 @@ public partial class GameSession : Node
 			IntegratedServer.Start();
 
 			// Manually add the integrated connection to the server
-			integratedClient.Connect("", 0, globalNode.Username);
+			integratedClient.Connect("", 0, globalNode.Username); // To set the username basically
 			IntegratedServer.NetworkService.ManualAddNewConnection(integratedConnection);
 
 			client = integratedClient;

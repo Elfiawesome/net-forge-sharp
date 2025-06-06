@@ -1,12 +1,13 @@
 using System;
 using NetForge.Shared.Debugging;
+using NetForge.Shared.Network;
 using NetForge.Shared.Network.Packet;
 using NetForge.Shared.Network.Packet.Clientbound.Authentication;
 using NetForge.Shared.Network.Packet.Serverbound.Authentication;
 
 namespace NetForge.ClientCore;
 
-public class BaseClient
+public class BaseClient : IConnection
 {
 	public event Action<BasePacket> PacketReceivedEvent = delegate { };
 	public readonly int ProtocolNumber = 1;
@@ -23,7 +24,7 @@ public class BaseClient
 
 	}
 
-	public virtual void SendPacket(BasePacket packet)
+	public virtual void SendPacket<TPacket>(TPacket packet) where TPacket : BasePacket
 	{
 
 	}
@@ -33,7 +34,7 @@ public class BaseClient
 		PacketReceivedEvent?.Invoke(packet);
 	}
 
-	protected bool HandlePacket(BasePacket packet)
+	public bool HandlePacket<TPacket>(TPacket packet) where TPacket : BasePacket 
 	{
 		if (packet is null)
 		{
@@ -64,5 +65,4 @@ public class BaseClient
 		}
 		return true;
 	}
-
 }

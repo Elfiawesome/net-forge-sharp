@@ -1,5 +1,6 @@
-using System;
 using System.Collections.Generic;
+using MessagePack;
+using NetForge.Shared.Debugging;
 using NetForge.Shared.Network.Packet.Clientbound.Authentication;
 using NetForge.Shared.Network.Packet.Serverbound.Authentication;
 
@@ -7,7 +8,9 @@ namespace NetForge.Shared.Network.Packet;
 
 public static class PacketFactory
 {
-	private static readonly Dictionary<PacketId, Func<BasePacket>> _packetFactory = [];
+	private delegate BasePacket DeserializerSignature(byte[] packetData);
+
+	private static readonly Dictionary<PacketId, DeserializerSignature> _deserializeFactory = [];
 
 	public static void Initialize()
 	{
@@ -15,23 +18,23 @@ public static class PacketFactory
 		Register<S2CRequestLoginPacket>(PacketId.S2CRequestLoginPacket);
 		Register<C2SLoginResponsePacket>(PacketId.C2SLoginResponsePacket);
 		Register<S2CLoginSuccessPacket>(PacketId.S2CLoginSuccessPacket);
-		
 	}
 
 	public static void Register<TPacket>(PacketId packetId) where TPacket : BasePacket, new()
 	{
-		if (_packetFactory.ContainsKey(packetId))
+		if (_deserializeFactory.ContainsKey(packetId)) { return; }
+		_deserializeFactory[packetId] = (byte[] packetData) =>
 		{
-			return;
-		}
-		_packetFactory[packetId] = () => new TPacket();
+			var packet = MessagePackSerializer.Deserialize<TPacket>(packetData);
+			return packet;
+		};
 	}
 
-	public static BasePacket? Create(PacketId packetId)
+	public static BasePacket? Deserialize(PacketId packetId, byte[] packetByte)
 	{
-		if (!_packetFactory.ContainsKey(packetId)) { return null; }
+		if (!_deserializeFactory.ContainsKey(packetId)) { return null; }
 
-		BasePacket? packet = _packetFactory[packetId]?.Invoke();
+		BasePacket? packet = _deserializeFactory[packetId]?.Invoke(packetByte);
 		return packet;
 	}
 }

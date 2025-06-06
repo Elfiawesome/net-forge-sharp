@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MessagePack;
 using NetForge.Shared.Debugging;
 using NetForge.Shared.Network.Packet;
 
@@ -71,13 +72,12 @@ public class PacketStream
 					}
 
 					PacketId packetId = (PacketId)br.ReadUInt16();
-					BasePacket? packet = PacketFactory.Create(packetId);
+					var packetData = br.ReadBytes((int)ms.Length - PACKET_ID_FIELD_SIZE);
+					BasePacket? packet = PacketFactory.Deserialize(packetId, packetData);
 					if (packet == null)
 					{
 						throw new Exception("Packet does not exist in registry");
 					}
-					packet.DeserializePayload(br);
-					if (ms.Position != ms.Length) { /* NOTE: The packet didnt read the whole reader. For now i'll ignore :/ */ }
 					return packet;
 				}
 			}
@@ -104,7 +104,7 @@ public class PacketStream
 		return totalBytesRead;
 	}
 
-	public async Task SendPacketAsync(BasePacket packet, CancellationToken token = default)
+	public async Task SendPacketAsync<TPacket>(TPacket packet, CancellationToken token = default) where TPacket : BasePacket
 	{
 		try
 		{
@@ -115,7 +115,8 @@ public class PacketStream
 					// Packet Id
 					bw.Write((ushort)packet.Id);
 					// Packet Payload
-					packet.SerializePayload(bw);
+					var packetData = MessagePackSerializer.Serialize(packet);
+					bw.Write(packetData);
 					bw.Flush();
 
 					byte[] packetBuffer = ms.ToArray();

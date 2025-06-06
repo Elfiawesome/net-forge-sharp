@@ -1,3 +1,7 @@
+using MessagePack;
+
 namespace NetForge.Shared;
 
-public record PlayerId(string Id);
+[MessagePackObject(true)] public record PlayerId(
+	string Id
+);

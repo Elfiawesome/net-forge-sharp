@@ -1,5 +1,6 @@
 using System;
 using System.Net.Sockets;
+using System.Reflection.Metadata;
 using System.Threading;
 using System.Threading.Tasks;
 using NetForge.Shared.Debugging;
@@ -41,7 +42,7 @@ public class TCPConnection : BaseConnection
 				BasePacket? packet = await _packetStream.GetPacketAsync(_connectionCancellationToken);
 				if (packet != null)
 				{
-					OnPacketReceivedEvent(packet);
+					var okay = HandlePacket(packet);
 				}
 				else
 				{
@@ -64,7 +65,7 @@ public class TCPConnection : BaseConnection
 		}
 	}
 
-	public override void SendPacket(BasePacket packet)
+	public override void SendPacket<TPacket>(TPacket packet)
 	{
 		_ = _packetStream.SendPacketAsync(packet);
 	}

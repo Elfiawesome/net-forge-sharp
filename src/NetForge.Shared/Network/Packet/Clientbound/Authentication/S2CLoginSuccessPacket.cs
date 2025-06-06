@@ -1,11 +1,14 @@
 using System.IO;
+using MessagePack;
 
 namespace NetForge.Shared.Network.Packet.Clientbound.Authentication;
 
+[MessagePackObject]
 public class S2CLoginSuccessPacket : BasePacket
 {
 	public override PacketId Id => PacketId.S2CLoginSuccessPacket;
 
+	[Key(0)]
 	public PlayerId PlayerId = new("null");
 
 	public S2CLoginSuccessPacket()
@@ -15,15 +18,5 @@ public class S2CLoginSuccessPacket : BasePacket
 	public S2CLoginSuccessPacket(PlayerId playerId)
 	{
 		PlayerId = playerId;
-	}
-
-	public override void DeserializePayload(BinaryReader reader)
-	{
-		PlayerId = new PlayerId(reader.ReadString());
-	}
-
-	public override void SerializePayload(BinaryWriter writer)
-	{
-		writer.Write(PlayerId.ToString());
 	}
 }

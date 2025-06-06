@@ -1,4 +1,5 @@
 using System.IO;
+using MessagePack;
 
 namespace NetForge.Shared.Network.Packet;
 
@@ -11,9 +12,11 @@ public enum PacketId : ushort
 	C2SLoginResponsePacket,
 }
 
+[MessagePackObject]
 public abstract class BasePacket
 {
+	public BasePacket() { }	
+
+	[IgnoreMember]
 	public abstract PacketId Id { get; }
-	public abstract void SerializePayload(BinaryWriter writer);
-	public abstract void DeserializePayload(BinaryReader reader);
 }
