@@ -33,7 +33,7 @@ public class BaseClient
 		PacketReceivedEvent?.Invoke(packet);
 	}
 
-	public bool HandlePacket(BasePacket packet)
+	protected bool HandlePacket(BasePacket packet)
 	{
 		if (packet is null)
 		{
