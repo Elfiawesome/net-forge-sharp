@@ -21,7 +21,7 @@ public partial class GameSession : Node
 
 		if (globalNode.InstanceNumber == 0)
 		{
-			var islocalNetwork = false;
+			var islocalNetwork = true;
 
 			// Start server
 			IntegratedServer = new Server();
@@ -33,7 +33,9 @@ public partial class GameSession : Node
 			{
 				var integratedConnection = new IntegratedConnection();
 				var integratedClient = new IntegratedClient();
-				
+				integratedConnection.clientConnection = integratedClient;
+				integratedClient.serverConnection = integratedConnection;
+
 
 				// Manually add the integrated connection to the server
 				integratedClient.Connect("", 0, globalNode.Username); // To set the username basically

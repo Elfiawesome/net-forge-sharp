@@ -7,7 +7,7 @@ namespace NetForge.ServerCore.Network.Connection;
 
 public class IntegratedConnection : BaseConnection, IIntegratedPipe
 {
-	public IIntegratedPipe clientConnection;
+	public IIntegratedPipe ?clientConnection;
 	public void OnIntegratedPipeHandlePacket<TPacket>(TPacket packet) where TPacket : BasePacket
 	{
 		HandlePacket(packet);
@@ -15,6 +15,6 @@ public class IntegratedConnection : BaseConnection, IIntegratedPipe
 
 	public override void SendPacket<TPacket>(TPacket packet)
 	{
-		clientConnection.OnIntegratedPipeHandlePacket(packet);
+		clientConnection?.OnIntegratedPipeHandlePacket(packet);
 	}
 }
