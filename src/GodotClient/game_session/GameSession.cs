@@ -1,13 +1,20 @@
+using System;
 using Godot;
 using NetForge.ClientCore;
 using NetForge.ServerCore;
 using NetForge.ServerCore.Network.Connection;
 using NetForge.ServerCore.Network.Listener;
+using NetForge.Shared.Network;
+using NetForge.Shared.Network.Packet;
+using NetForge.Shared.Network.Packet.Clientbound.Authentication;
+using NetForge.Shared.Network.Packet.Serverbound.Authentication;
 
 public partial class GameSession : Node
 {
 	public BaseClient? client;
 	private Server? IntegratedServer;
+	private PacketHandler<int> _packetHandler = new();
+
 
 	public override void _Ready()
 	{
@@ -16,8 +23,11 @@ public partial class GameSession : Node
 		var disconnectbuttonNode = GetNode<Button>("CanvasLayer/Control/MarginContainer/VBoxContainer/DisconnectButton");
 		disconnectbuttonNode.Pressed += () => client?.Leave();
 
-
 		var globalNode = GetTree().Root.GetNode<Global>("/root/Global");
+
+		// Register packet handlers
+		_packetHandler.Register<S2CLoginSuccessPacket>(PacketId.S2CLoginSuccessPacket, OnS2CLoginSuccessPacket);
+
 
 		if (globalNode.InstanceNumber == 0)
 		{
@@ -55,12 +65,7 @@ public partial class GameSession : Node
 			client.Connect("127.0.0.1", 3115, globalNode.Username);
 		}
 
-
-
-		client.PacketReceivedEvent += (packet) =>
-		{
-			GD.Print($"[Client] Received packet: {packet.GetType().Name}");
-		};
+		client.PacketReceivedEvent += _packetHandler.HandlePacket;
 	}
 
 	public override void _Process(double delta)
@@ -81,5 +86,10 @@ public partial class GameSession : Node
 		GD.Print("[GameSession] Server shutdown button pressed.");
 		IntegratedServer?.Stop();
 	}
-	
+
+
+	private void OnS2CLoginSuccessPacket(S2CLoginSuccessPacket packet)
+	{
+		GD.Print($"WOW WE ARE CONNECTED LESGOOOO with username {packet.PlayerId}");
+	}
 }

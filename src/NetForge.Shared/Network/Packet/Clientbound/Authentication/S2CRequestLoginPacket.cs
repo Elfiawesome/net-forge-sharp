@@ -1,4 +1,3 @@
-using System.IO;
 using MessagePack;
 
 namespace NetForge.Shared.Network.Packet.Clientbound.Authentication;

@@ -60,9 +60,8 @@ public class BaseClient
 				Logger.Log("[Client] Authentication successful");
 			}
 		}
-		else
-		{
-			OnPacketReceived(packet);
-		}
+
+		// Handle Packet as per normal
+		OnPacketReceived(packet);
 	}
 }

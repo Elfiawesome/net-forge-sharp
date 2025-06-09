@@ -1,5 +1,3 @@
-
-using System.Reflection.Metadata;
 using NetForge.Shared.Network;
 using NetForge.Shared.Network.Packet;
 
