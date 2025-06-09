@@ -1,4 +1,3 @@
-using System;
 using Godot;
 using NetForge.ClientCore;
 using NetForge.ServerCore;
@@ -7,7 +6,6 @@ using NetForge.ServerCore.Network.Listener;
 using NetForge.Shared.Network;
 using NetForge.Shared.Network.Packet;
 using NetForge.Shared.Network.Packet.Clientbound.Authentication;
-using NetForge.Shared.Network.Packet.Serverbound.Authentication;
 
 public partial class GameSession : Node
 {

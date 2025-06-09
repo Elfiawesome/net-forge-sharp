@@ -17,7 +17,7 @@ public static class Program
 		server.Start();
 		
 		// Testing with a client connection
-		Client client = new();
+		TCPClient client = new();
 		client.Connect("127.0.0.1", 3115, "Elfiawesome");
 		
 

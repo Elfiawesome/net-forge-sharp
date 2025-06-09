@@ -1,4 +1,3 @@
-using System;
 using NetForge.ServerCore.Network.Connection;
 using NetForge.Shared;
 using NetForge.Shared.Debugging;
