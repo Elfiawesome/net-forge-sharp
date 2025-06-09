@@ -1,13 +1,8 @@
-using System.Data.Common;
 using Godot;
-using MessagePack;
 using NetForge.ClientCore;
 using NetForge.ServerCore;
 using NetForge.ServerCore.Network.Connection;
 using NetForge.ServerCore.Network.Listener;
-using NetForge.Shared.Debugging;
-using NetForge.Shared.Network.Packet;
-using NetForge.Shared.Network.Packet.Clientbound.Authentication;
 
 public partial class GameSession : Node
 {
@@ -16,28 +11,41 @@ public partial class GameSession : Node
 
 	public override void _Ready()
 	{
-		var buttonNode = GetNode<Button>("CanvasLayer/Control/Button");
-		buttonNode.Pressed += OnServerShutdownButtonPressed;
+		var shutdownButtonNode = GetNode<Button>("CanvasLayer/Control/MarginContainer/VBoxContainer/ShutdownButton");
+		shutdownButtonNode.Pressed += OnServerShutdownButtonPressed;
+		var disconnectbuttonNode = GetNode<Button>("CanvasLayer/Control/MarginContainer/VBoxContainer/DisconnectButton");
+		disconnectbuttonNode.Pressed += () => client?.Leave();
+
+
 		var globalNode = GetTree().Root.GetNode<Global>("/root/Global");
 
 		if (globalNode.InstanceNumber == 0)
 		{
-			// Connect 2 integrated systems together
-			var integratedConnection = new IntegratedConnection();
-			var integratedClient = new IntegratedClient();
-			integratedConnection.ClientConnection = integratedClient;
-			integratedClient.ServerConnection = integratedConnection;
+			var islocalNetwork = false;
 
 			// Start server
 			IntegratedServer = new Server();
 			IntegratedServer.NetworkService.AddListener(new TCPListener("127.0.0.1", 3115));
 			IntegratedServer.Start();
 
-			// Manually add the integrated connection to the server
-			integratedClient.Connect("", 0, globalNode.Username); // To set the username basically
-			IntegratedServer.NetworkService.ManualAddNewConnection(integratedConnection);
 
-			client = integratedClient;
+			if (islocalNetwork)
+			{
+				var integratedConnection = new IntegratedConnection();
+				var integratedClient = new IntegratedClient();
+				
+
+				// Manually add the integrated connection to the server
+				integratedClient.Connect("", 0, globalNode.Username); // To set the username basically
+				IntegratedServer.NetworkService.ManualAddNewConnection(integratedConnection);
+
+				client = integratedClient;
+			}
+			else
+			{
+				client = new TCPClient();
+				client.Connect("127.0.0.1", 3115, globalNode.Username);
+			}
 		}
 		else
 		{

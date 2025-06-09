@@ -1,12 +1,11 @@
 using System;
 using NetForge.Shared;
-using NetForge.Shared.Network;
 using NetForge.Shared.Network.Packet;
 using NetForge.Shared.Network.Packet.Clientbound.Authentication;
 
 namespace NetForge.ServerCore.Network.Connection;
 
-public abstract class BaseConnection : IConnection
+public abstract class BaseConnection
 {
 	public event Action<BaseConnection> ConnectionClosedEvent = delegate { };
 	public event Action<BaseConnection, PlayerId> ConnectionAuthenticatedEvent = delegate { };
@@ -42,9 +41,8 @@ public abstract class BaseConnection : IConnection
 		ConnectionAuthenticatedEvent.Invoke(this, playerId);
 	}
 
-	public bool HandlePacket<TPacket>(TPacket packet) where TPacket : BasePacket
+	public void HandlePacket<TPacket>(TPacket packet) where TPacket : BasePacket
 	{
 		PacketReceivedEvent.Invoke(this, packet);
-		return true;
 	}
 }

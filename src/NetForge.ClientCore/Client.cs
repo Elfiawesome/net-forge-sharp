@@ -4,9 +4,6 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using NetForge.Shared.Debugging;
-using NetForge.Shared.Network.Packet;
-using NetForge.Shared.Network.Packet.Clientbound.Authentication;
-using NetForge.Shared.Network.Packet.Serverbound.Authentication;
 using NetForge.Shared.Network.Stream;
 
 namespace NetForge.ClientCore;
@@ -36,7 +33,7 @@ public class TCPClient : BaseClient
 			IPAddress ipAddress = IPAddress.Parse(ipAddressString);
 			IPEndPoint ipEndPoint = new IPEndPoint(ipAddress, port);
 			_tcpClient.Connect(ipEndPoint);
-			_packetStream = new PacketStream(_tcpClient.GetStream());
+			_packetStream = new PacketStream(_tcpClient.GetStream(), "Client");
 
 			Logger.Log("[Client] Connecting to server");
 			_listeningTask = Listen();
@@ -62,18 +59,16 @@ public class TCPClient : BaseClient
 				{
 					break;
 				}
-				if (!HandlePacket(packet))
-				{
-					break;
-				}
+				HandlePacket(packet);
 			}
 			catch (Exception)
 			{
 
 			}
 		}
+		_tcpClient.Close();
 	}
-	
+
 	public override void Leave()
 	{
 		_clientCancellationTokenSource.Cancel();

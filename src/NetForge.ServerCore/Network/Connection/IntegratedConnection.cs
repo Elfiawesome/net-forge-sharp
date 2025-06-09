@@ -1,14 +1,20 @@
+
+using System.Reflection.Metadata;
 using NetForge.Shared.Network;
+using NetForge.Shared.Network.Packet;
 
 namespace NetForge.ServerCore.Network.Connection;
 
-public class IntegratedConnection : BaseConnection
+public class IntegratedConnection : BaseConnection, IIntegratedPipe
 {
-	public IConnection ?ClientConnection;
-
+	public IIntegratedPipe clientConnection;
+	public void OnIntegratedPipeHandlePacket<TPacket>(TPacket packet) where TPacket : BasePacket
+	{
+		HandlePacket(packet);
+	}
 
 	public override void SendPacket<TPacket>(TPacket packet)
 	{
-		ClientConnection?.HandlePacket(packet);
+		clientConnection.OnIntegratedPipeHandlePacket(packet);
 	}
 }

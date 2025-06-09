@@ -12,6 +12,7 @@ namespace NetForge.Shared.Network.Stream;
 
 public class PacketStream
 {
+	private string _dParentController = ""; // Remove when in production
 	private readonly NetworkStream _stream;
 	private static readonly Encoding _stringEncoding = Encoding.UTF8;
 
@@ -22,9 +23,11 @@ public class PacketStream
 	// Max size for (PacketId + Payload) [2MB]
 	const int MAX_PACKET_PAYLOAD_SIZE = 2 * 1024 * 1024;
 
-	public PacketStream(NetworkStream stream)
+	public PacketStream(NetworkStream stream, string dParentController = "None")
 	{
 		_stream = stream;
+		_dParentController = dParentController;
+
 	}
 
 
@@ -84,7 +87,7 @@ public class PacketStream
 		}
 		catch (Exception ex)
 		{
-			Logger.Log($"[PacketStream] Error while reading packet {ex.Message}");
+			Logger.Log($"[{_dParentController}/PacketStream] Error while reading packet: {ex.Message}");
 			return null;
 		}
 	}
@@ -138,7 +141,7 @@ public class PacketStream
 		}
 		catch (Exception ex)
 		{
-			Logger.Log($"[PacketStream] Error while sending packet {ex.Message}");
+			Logger.Log($"[{_dParentController}/PacketStream] Error while sending packet: {ex.Message}");
 		}
 	}
 }

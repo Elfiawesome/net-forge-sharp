@@ -22,7 +22,7 @@ public class TCPConnection : BaseConnection
 	public TCPConnection(TcpClient tcpClient, CancellationToken serverCancellationToken)
 	{
 		_tcpClient = tcpClient;
-		_packetStream = new(_tcpClient.GetStream());
+		_packetStream = new PacketStream(_tcpClient.GetStream(), "Server");
 
 		_connectionCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(serverCancellationToken);
 		_connectionCancellationToken = _connectionCancellationTokenSource.Token;
@@ -42,7 +42,7 @@ public class TCPConnection : BaseConnection
 				BasePacket? packet = await _packetStream.GetPacketAsync(_connectionCancellationToken);
 				if (packet != null)
 				{
-					var okay = HandlePacket(packet);
+					HandlePacket(packet);
 				}
 				else
 				{

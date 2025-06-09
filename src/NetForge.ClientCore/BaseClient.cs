@@ -1,13 +1,12 @@
 using System;
 using NetForge.Shared.Debugging;
-using NetForge.Shared.Network;
 using NetForge.Shared.Network.Packet;
 using NetForge.Shared.Network.Packet.Clientbound.Authentication;
 using NetForge.Shared.Network.Packet.Serverbound.Authentication;
 
 namespace NetForge.ClientCore;
 
-public class BaseClient : IConnection
+public class BaseClient
 {
 	public event Action<BasePacket> PacketReceivedEvent = delegate { };
 	public readonly int ProtocolNumber = 1;
@@ -34,16 +33,18 @@ public class BaseClient : IConnection
 		PacketReceivedEvent?.Invoke(packet);
 	}
 
-	public bool HandlePacket<TPacket>(TPacket packet) where TPacket : BasePacket 
+	public void HandlePacket<TPacket>(TPacket packet) where TPacket : BasePacket
 	{
 		if (packet is null)
 		{
-			return false;
+			Leave();
+			return;
 		}
 		if (packet is S2CDisconnectPacket disconnectPacket)
 		{
 			Logger.Log($"[Client] Disconnected from server reason: {disconnectPacket.Reason}");
-			return false;
+			Leave();
+			return;
 		}
 
 		if (!_isAuthenticated)
@@ -63,6 +64,5 @@ public class BaseClient : IConnection
 		{
 			OnPacketReceived(packet);
 		}
-		return true;
 	}
 }

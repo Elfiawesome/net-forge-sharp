@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using MessagePack;
-using NetForge.Shared.Debugging;
 using NetForge.Shared.Network.Packet.Clientbound.Authentication;
 using NetForge.Shared.Network.Packet.Serverbound.Authentication;
 
@@ -20,7 +19,7 @@ public static class PacketFactory
 		Register<S2CLoginSuccessPacket>(PacketId.S2CLoginSuccessPacket);
 	}
 
-	public static void Register<TPacket>(PacketId packetId) where TPacket : BasePacket, new()
+	public static void Register<TPacket>(PacketId packetId) where TPacket : BasePacket, new() // What does , new() mean or do?
 	{
 		if (_deserializeFactory.ContainsKey(packetId)) { return; }
 		_deserializeFactory[packetId] = (byte[] packetData) =>
